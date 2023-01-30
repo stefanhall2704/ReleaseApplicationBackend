@@ -3,10 +3,15 @@
 #![allow(unused)]
 #![allow(clippy::all)]
 
-
 use chrono::NaiveDate;
 use chrono::NaiveDateTime;
-#[derive(Queryable, Debug, Identifiable)]
+use diesel::Identifiable;
+use diesel::Insertable;
+use diesel::Queryable;
+
+
+#[derive(Queryable, Debug)]
+#[diesel(table_name = ApplicationConnection)]
 #[diesel(primary_key(ID))]
 pub struct ApplicationConnection {
     pub ID: i32,
@@ -19,7 +24,9 @@ pub struct ApplicationConnection {
     pub DateAdded: Option<NaiveDateTime>,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+
+#[derive(Queryable, Debug)]
+#[diesel(table_name = ApplicationNode)]
 #[diesel(primary_key(ID))]
 pub struct ApplicationNode {
     pub ID: i32,
@@ -31,16 +38,18 @@ pub struct ApplicationNode {
     pub DateAdded: Option<NaiveDateTime>,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
 #[diesel(primary_key(ID))]
-pub struct ApplicationTeam {
+pub struct NewApplicationTeam {
     pub ID: i32,
     pub Name: String,
     pub IsActive: Option<bool>,
     pub SourceControlTeamID: Option<String>,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+
+#[derive(Queryable, Debug)]
+#[diesel(table_name = ApplicationUser)]
 #[diesel(primary_key(ID))]
 pub struct ApplicationUser {
     pub ID: i32,
@@ -55,7 +64,8 @@ pub struct ApplicationUser {
     pub ApplicationTeamID: Option<i32>,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = ApplicationUserReleaseApproval)]
 #[diesel(primary_key(ID))]
 pub struct ApplicationUserReleaseApproval {
     pub ID: i32,
@@ -63,7 +73,8 @@ pub struct ApplicationUserReleaseApproval {
     pub ReleaseApprovalTypeID: i32,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = ApplicationUserReleaseAvailability)]
 #[diesel(primary_key(ID))]
 pub struct ApplicationUserReleaseAvailability {
     pub ID: i32,
@@ -72,14 +83,16 @@ pub struct ApplicationUserReleaseAvailability {
     pub SupportAvailability: Option<String>,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = ApplicationUserRole)]
 #[diesel(primary_key(ID))]
 pub struct ApplicationUserRole {
     pub ID: i32,
     pub Role: String,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = ApplicationUserTeam)]
 #[diesel(primary_key(ID))]
 pub struct ApplicationUserTeam {
     pub ID: i32,
@@ -91,7 +104,8 @@ pub struct ApplicationUserTeam {
     pub IsDefault: bool,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = AuditReleaseActivityTask)]
 #[diesel(primary_key(ID))]
 pub struct AuditReleaseActivityTask {
     pub ID: i32,
@@ -116,7 +130,8 @@ pub struct AuditReleaseActivityTask {
     pub DependentTaskID: Option<i32>,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = BuildHistory)]
 #[diesel(primary_key(ID))]
 pub struct BuildHistory {
     pub ID: i32,
@@ -127,7 +142,8 @@ pub struct BuildHistory {
     pub TotalFailed: i32,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = BuildProject)]
 #[diesel(primary_key(ID))]
 pub struct BuildProject {
     pub ID: i32,
@@ -137,7 +153,8 @@ pub struct BuildProject {
     pub Path: Option<String>,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = Certificate)]
 #[diesel(primary_key(ID))]
 pub struct Certificate {
     pub ID: i32,
@@ -158,7 +175,8 @@ pub struct Certificate {
     pub RequiresDowntime: Option<String>,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = DeploymentHistory)]
 #[diesel(primary_key(ID))]
 pub struct DeploymentHistory {
     pub ID: i32,
@@ -169,7 +187,8 @@ pub struct DeploymentHistory {
     pub TotalFailed: i32,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = ERTHistory)]
 #[diesel(primary_key(ID))]
 pub struct ERTHistory {
     pub ID: i32,
@@ -180,7 +199,8 @@ pub struct ERTHistory {
     pub Status: i32,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = ERTProject)]
 #[diesel(primary_key(ID))]
 pub struct ERTProject {
     pub ID: i32,
@@ -194,7 +214,8 @@ pub struct ERTProject {
     pub Order: i32,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = Environment)]
 #[diesel(primary_key(ID))]
 pub struct Environment {
     pub ID: i32,
@@ -202,7 +223,8 @@ pub struct Environment {
     pub Subscription: Option<String>,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = Export)]
 #[diesel(primary_key(ID))]
 pub struct Export {
     pub ID: i32,
@@ -212,14 +234,16 @@ pub struct Export {
     pub IsActive: bool,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = FunctionalTest)]
 #[diesel(primary_key(ID))]
 pub struct FunctionalTest {
     pub ID: i32,
     pub Name: String,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = FunctionalTestResult)]
 #[diesel(primary_key(ID))]
 pub struct FunctionalTestResult {
     pub ID: i32,
@@ -235,7 +259,8 @@ pub struct FunctionalTestResult {
     pub ExecutionDate: NaiveDateTime,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = MetricsBug)]
 #[diesel(primary_key(ID))]
 pub struct MetricsBug {
     pub ID: i32,
@@ -269,7 +294,8 @@ pub struct MetricsBug {
     pub ProdSupportTicketID: Option<String>,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = MetricsDailyCache)]
 #[diesel(primary_key(ID))]
 pub struct MetricsDailyCache {
     pub ID: i32,
@@ -298,7 +324,8 @@ pub struct MetricsDailyCache {
     pub CodeCoverageProjectsTotal: Option<i32>,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = MetricsPullRequest)]
 #[diesel(primary_key(ID))]
 pub struct MetricsPullRequest {
     pub ID: i32,
@@ -331,7 +358,8 @@ pub struct MetricsPullRequest {
     pub MostCommentsInSingleThread: Option<i32>,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = NotificationQueue)]
 #[diesel(primary_key(ID))]
 pub struct NotificationQueue {
     pub ID: i32,
@@ -345,7 +373,8 @@ pub struct NotificationQueue {
     pub HasBeenSent: bool,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = OctopusProject)]
 #[diesel(primary_key(ID))]
 pub struct OctopusProject {
     pub ID: i32,
@@ -355,7 +384,8 @@ pub struct OctopusProject {
     pub IsEnabled: Option<bool>,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = ProjectCodeCoverage)]
 #[diesel(primary_key(ID))]
 pub struct ProjectCodeCoverage {
     pub ID: i32,
@@ -365,14 +395,16 @@ pub struct ProjectCodeCoverage {
     pub ReleaseNotesPath: Option<String>,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = ProjectRollUp)]
 #[diesel(primary_key(ID))]
 pub struct ProjectRollUp {
     pub ID: i32,
     pub Name: String,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = ProjectRollUpOctopusProject)]
 #[diesel(primary_key(ID))]
 pub struct ProjectRollUpOctopusProject {
     pub ID: i32,
@@ -380,7 +412,8 @@ pub struct ProjectRollUpOctopusProject {
     pub OctopusProjectID: i32,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = Release)]
 #[diesel(primary_key(ID))]
 pub struct Release {
     pub ID: i32,
@@ -397,7 +430,8 @@ pub struct Release {
     pub IsReadyForQa: Option<bool>,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = ReleaseActivity)]
 #[diesel(primary_key(ID))]
 pub struct ReleaseActivity {
     pub ID: i32,
@@ -423,7 +457,8 @@ pub struct ReleaseActivity {
     pub JiraWorkItems: Option<String>,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = ReleaseActivityApproval)]
 #[diesel(primary_key(ID))]
 pub struct ReleaseActivityApproval {
     pub ID: i32,
@@ -436,7 +471,8 @@ pub struct ReleaseActivityApproval {
     pub Comments: Option<String>,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = ReleaseActivityFeature)]
 #[diesel(primary_key(ID))]
 pub struct ReleaseActivityFeature {
     pub ID: i32,
@@ -449,7 +485,8 @@ pub struct ReleaseActivityFeature {
     pub TargetDate: Option<NaiveDate>,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = ReleaseActivityRelatedApplicationUser)]
 #[diesel(primary_key(ID))]
 pub struct ReleaseActivityRelatedApplicationUser {
     pub ID: i32,
@@ -457,7 +494,8 @@ pub struct ReleaseActivityRelatedApplicationUser {
     pub ApplicationUserID: i32,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = ReleaseActivityRelatedTask)]
 #[diesel(primary_key(ID))]
 pub struct ReleaseActivityRelatedTask {
     pub ID: i32,
@@ -466,7 +504,8 @@ pub struct ReleaseActivityRelatedTask {
     pub OctopusProjectSelectedVersion: Option<String>,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = ReleaseActivityTask)]
 #[diesel(primary_key(ID))]
 pub struct ReleaseActivityTask {
     pub ID: i32,
@@ -490,7 +529,8 @@ pub struct ReleaseActivityTask {
     pub OctopusProjectSelectedVersion: Option<String>,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = ReleaseActivityTaskAttachment)]
 #[diesel(primary_key(ID))]
 pub struct ReleaseActivityTaskAttachment {
     pub ID: String,
@@ -500,7 +540,8 @@ pub struct ReleaseActivityTaskAttachment {
     pub ContentType: Option<String>,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = ReleaseActivityTaskCategory)]
 #[diesel(primary_key(ID))]
 pub struct ReleaseActivityTaskCategory {
     pub ID: i32,
@@ -509,7 +550,8 @@ pub struct ReleaseActivityTaskCategory {
     pub IsActive: Option<bool>,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = ReleaseActivityTaskMessageQueue)]
 #[diesel(primary_key(ID))]
 pub struct ReleaseActivityTaskMessageQueue {
     pub ID: i32,
@@ -523,21 +565,24 @@ pub struct ReleaseActivityTaskMessageQueue {
     pub ReleaseEnvironment: Option<String>,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = ReleaseActivityTaskStatu)]
 #[diesel(primary_key(ID))]
 pub struct ReleaseActivityTaskStatu {
     pub ID: i32,
     pub Status: String,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = ReleaseActivityTaskTargetEnvironment)]
 #[diesel(primary_key(ID))]
 pub struct ReleaseActivityTaskTargetEnvironment {
     pub ID: i32,
     pub TargetEnvironment: String,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = ReleaseApproval)]
 #[diesel(primary_key(ID))]
 pub struct ReleaseApproval {
     pub ID: i32,
@@ -550,7 +595,8 @@ pub struct ReleaseApproval {
     pub Comments: Option<String>,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = ReleaseApprovalStatistic)]
 #[diesel(primary_key(ID))]
 pub struct ReleaseApprovalStatistic {
     pub ID: i32,
@@ -559,7 +605,8 @@ pub struct ReleaseApprovalStatistic {
     pub Value: Option<String>,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = ReleaseApprovalType)]
 #[diesel(primary_key(ID))]
 pub struct ReleaseApprovalType {
     pub ID: i32,
@@ -570,7 +617,8 @@ pub struct ReleaseApprovalType {
     pub Description: Option<String>,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = ReleaseBranchHistory)]
 #[diesel(primary_key(ID))]
 pub struct ReleaseBranchHistory {
     pub ID: i32,
@@ -581,7 +629,8 @@ pub struct ReleaseBranchHistory {
     pub VersionNumber: Option<String>,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = ReleaseRelatedApplicationUser)]
 #[diesel(primary_key(ID))]
 pub struct ReleaseRelatedApplicationUser {
     pub ID: i32,
@@ -589,7 +638,8 @@ pub struct ReleaseRelatedApplicationUser {
     pub ApplicationUserID: i32,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = ReleaseRelatedCategory)]
 #[diesel(primary_key(ID))]
 pub struct ReleaseRelatedCategory {
     pub ID: i32,
@@ -598,14 +648,16 @@ pub struct ReleaseRelatedCategory {
     pub SortOrder: i32,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = ReleaseStatus)]
 #[diesel(primary_key(ID))]
-pub struct ReleaseStatu {
+pub struct ReleaseStatus {
     pub ID: i32,
     pub Status: String,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = RequestPathway)]
 #[diesel(primary_key(ID))]
 pub struct RequestPathway {
     pub ID: i32,
@@ -614,7 +666,8 @@ pub struct RequestPathway {
     pub ConnectionType: Option<String>,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = ResourceCost)]
 #[diesel(primary_key(ID))]
 pub struct ResourceCost {
     pub ID: i32,
@@ -625,7 +678,8 @@ pub struct ResourceCost {
     pub Cost: String,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = ResourceGroupCost)]
 #[diesel(primary_key(ID))]
 pub struct ResourceGroupCost {
     pub ID: i32,
@@ -635,14 +689,16 @@ pub struct ResourceGroupCost {
     pub Cost: String,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = STAR)]
 #[diesel(primary_key(ID))]
 pub struct STAR {
     pub ID: i32,
     pub DateCreated: NaiveDateTime,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = STARData)]
 #[diesel(primary_key(ID))]
 pub struct STARData {
     pub ID: i32,
@@ -650,7 +706,8 @@ pub struct STARData {
     pub Record: String,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = SlottingMigrationLog)]
 #[diesel(primary_key(ID))]
 pub struct SlottingMigrationLog {
     pub ID: i32,
@@ -658,7 +715,8 @@ pub struct SlottingMigrationLog {
     pub ApplicationUserID: Option<i32>,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = SystemEventLog)]
 #[diesel(primary_key(ID))]
 pub struct SystemEventLog {
     pub ID: i32,
@@ -668,7 +726,8 @@ pub struct SystemEventLog {
     pub EventDate: NaiveDateTime,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = SystemValue)]
 #[diesel(primary_key(ID))]
 pub struct SystemValue {
     pub ID: i32,
@@ -677,7 +736,8 @@ pub struct SystemValue {
     pub Date: NaiveDateTime,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = UnitTestHistory)]
 #[diesel(primary_key(ID))]
 pub struct UnitTestHistory {
     pub ID: i32,
@@ -688,7 +748,8 @@ pub struct UnitTestHistory {
     pub TotalFailed: i32,
 }
 
-#[derive(Queryable, Debug, Identifiable)]
+#[derive(Queryable, Debug)]
+#[diesel(table_name = VstsFeatureCompliance)]
 #[diesel(primary_key(ID))]
 pub struct VstsFeatureCompliance {
     pub ID: i32,

@@ -662,14 +662,6 @@ diesel::table! {
     }
 }
 
-diesel::table! {
-    SystemValues (ID) {
-        ID -> Integer,
-        Name -> Text,
-        Value -> Text,
-        Date -> Timestamp,
-    }
-}
 
 diesel::table! {
     UnitTestHistory (ID) {
@@ -765,7 +757,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     STARData,
     SlottingMigrationLog,
     SystemEventLog,
-    SystemValues,
+
     UnitTestHistory,
     VstsFeatureCompliance,
 );
