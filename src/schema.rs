@@ -1,5 +1,5 @@
 // @generated automatically by Diesel CLI.
-
+#![allow(non_snake_case)]
 diesel::table! {
     ApplicationConnection (ID) {
         ID -> Integer,
@@ -637,14 +637,6 @@ diesel::table! {
 }
 
 diesel::table! {
-    STARData (ID) {
-        ID -> Integer,
-        StarID -> Integer,
-        Record -> Text,
-    }
-}
-
-diesel::table! {
     SlottingMigrationLog (ID) {
         ID -> Integer,
         OctopusProjectID -> Nullable<Text>,
@@ -661,7 +653,6 @@ diesel::table! {
         EventDate -> Timestamp,
     }
 }
-
 
 diesel::table! {
     UnitTestHistory (ID) {
@@ -754,10 +745,8 @@ diesel::allow_tables_to_appear_in_same_query!(
     ResourceCost,
     ResourceGroupCost,
     STAR,
-    STARData,
     SlottingMigrationLog,
     SystemEventLog,
-
     UnitTestHistory,
     VstsFeatureCompliance,
 );

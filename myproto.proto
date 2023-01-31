@@ -1,0 +1,748 @@
+syntax = "proto3";
+
+
+message ApplicationConnection {
+    /* TODO: unknown type Integer */ ID = 1;
+    /* TODO: unknown type Integer */ FromApplicationID = 2;
+    /* TODO: unknown type Integer */ ToApplicationID = 3;
+    bool RequiresCert = 4;
+    bool RequiresKey = 5;
+    bool RequiresAzureADAuth = 6;
+    string ConnectionType = 7;
+    string DateAdded = 8;
+}
+message ApplicationNode {
+    /* TODO: unknown type Integer */ ID = 1;
+    /* TODO: unknown type Integer */ OctopusID = 2;
+    string ApplicationName = 3;
+    string ApplicationType = 4;
+    bool IsIncludedInImminentRelease = 5;
+    string ServerGroupDescription = 6;
+    string DateAdded = 7;
+}
+message ApplicationTeam {
+    /* TODO: unknown type Integer */ ID = 1;
+    string Name = 2;
+    bool IsActive = 3;
+    string SourceControlTeamID = 4;
+}
+message ApplicationUser {
+    /* TODO: unknown type Integer */ ID = 1;
+    string First = 2;
+    string Last = 3;
+    string ADUsername = 4;
+    string Email = 5;
+    string PrimaryPhone = 6;
+    string SecondaryPhone = 7;
+    /* TODO: unknown type Integer */ ApplicationUserRoleID = 8;
+    /* TODO: unknown type Nullable<Integer> */ IsActive = 9;
+    /* TODO: unknown type Nullable<Integer> */ ApplicationTeamID = 10;
+}
+message ApplicationUserReleaseApproval {
+    /* TODO: unknown type Integer */ ID = 1;
+    /* TODO: unknown type Integer */ ApplicationUserID = 2;
+    /* TODO: unknown type Integer */ ReleaseApprovalTypeID = 3;
+}
+message ApplicationUserReleaseAvailability {
+    /* TODO: unknown type Integer */ ID = 1;
+    /* TODO: unknown type Integer */ ReleaseID = 2;
+    /* TODO: unknown type Integer */ ApplicationUserID = 3;
+    string SupportAvailability = 4;
+}
+message ApplicationUserRole {
+    /* TODO: unknown type Integer */ ID = 1;
+    string Role = 2;
+}
+message ApplicationUserTeam {
+    /* TODO: unknown type Integer */ ID = 1;
+    /* TODO: unknown type Integer */ ApplicationUserID = 2;
+    /* TODO: unknown type Integer */ ApplicationTeamID = 3;
+    bool IsMember = 4;
+    bool IsSubscriber = 5;
+    bool IsAdmin = 6;
+    bool IsDefault = 7;
+}
+message AuditReleaseActivityTask {
+    /* TODO: unknown type Integer */ ID = 1;
+    /* TODO: unknown type Nullable<Integer> */ ReleaseActivityTaskID = 2;
+    string Title = 3;
+    /* TODO: unknown type Nullable<Integer> */ StageCategoryID = 4;
+    string DeploymentInstructions = 5;
+    /* TODO: unknown type Nullable<Integer> */ OctopusProjectID = 6;
+    /* TODO: unknown type Nullable<Integer> */ TargetEnvironmentID = 7;
+    bool IsHidden = 8;
+    /* TODO: unknown type Nullable<Integer> */ StageUserID = 9;
+    /* TODO: unknown type Nullable<Integer> */ StageStatusID = 10;
+    /* TODO: unknown type Nullable<Integer> */ ProdUserID = 11;
+    /* TODO: unknown type Nullable<Integer> */ ProdStatusID = 12;
+    /* TODO: unknown type Nullable<Integer> */ StageSortOrder = 13;
+    /* TODO: unknown type Nullable<Integer> */ ProdSortOrder = 14;
+    /* TODO: unknown type Nullable<Integer> */ ProdCategoryID = 15;
+    /* TODO: unknown type Nullable<Integer> */ CanonicalOrder = 16;
+    string UpdateBy = 17;
+    string UpdatedOnDate = 18;
+    string Action = 19;
+    /* TODO: unknown type Nullable<Integer> */ DependentTaskID = 20;
+}
+message BuildHistory {
+    /* TODO: unknown type Integer */ ID = 1;
+    /* TODO: unknown type Integer */ BuildProjectID = 2;
+    /* TODO: unknown type Integer */ MetricsDailyCacheID = 3;
+    /* TODO: unknown type Integer */ Total = 4;
+    /* TODO: unknown type Integer */ TotalSuccess = 5;
+    /* TODO: unknown type Integer */ TotalFailed = 6;
+}
+message BuildProject {
+    /* TODO: unknown type Integer */ ID = 1;
+    string Name = 2;
+    /* TODO: unknown type Nullable<Integer> */ OctopusProjectID = 3;
+    /* TODO: unknown type Nullable<Integer> */ BuildDefinitionID = 4;
+    string Path = 5;
+}
+message Certificate {
+    /* TODO: unknown type Integer */ ID = 1;
+    string Name = 2;
+    string CreatedDate = 3;
+    string ExpirationDate = 4;
+    string Thumbprint = 5;
+    /* TODO: unknown type Nullable<Integer> */ EnvironmentID = 6;
+    string LastModifiedDateTime = 7;
+    /* TODO: unknown type Nullable<Integer> */ OctopusProjectID = 8;
+    string SubjectCName = 9;
+    bool MarkForDeletion = 10;
+    string ReplacementSteps = 11;
+    string SerialNumber = 12;
+    string Source = 13;
+    /* TODO: unknown type Nullable<Integer> */ WorkItemID = 14;
+    string PreviousWorkItemIDs = 15;
+    string RequiresDowntime = 16;
+}
+message DeploymentHistory {
+    /* TODO: unknown type Integer */ ID = 1;
+    /* TODO: unknown type Integer */ OctopusProjectID = 2;
+    /* TODO: unknown type Integer */ MetricsDailyCacheID = 3;
+    /* TODO: unknown type Integer */ Total = 4;
+    /* TODO: unknown type Integer */ TotalSuccess = 5;
+    /* TODO: unknown type Integer */ TotalFailed = 6;
+}
+message ERTHistory {
+    /* TODO: unknown type Integer */ ID = 1;
+    NaiveDate LogDate = 2;
+    /* TODO: unknown type Nullable<Integer> */ ApplicationTeamID = 3;
+    string StartTime = 4;
+    string EndTime = 5;
+    /* TODO: unknown type Integer */ Status = 6;
+}
+message ERTProject {
+    /* TODO: unknown type Integer */ ID = 1;
+    /* TODO: unknown type Integer */ ERTHistoryID = 2;
+    /* TODO: unknown type Integer */ OctopusProjectID = 3;
+    string OctopusDeployProjectID = 4;
+    string DeploymentID = 5;
+    string Version = 6;
+    /* TODO: unknown type Integer */ Status = 7;
+    /* TODO: unknown type Integer */ ApplicationUserID = 8;
+    /* TODO: unknown type Integer */ Order = 9;
+}
+message Environment {
+    /* TODO: unknown type Integer */ ID = 1;
+    string Name = 2;
+    string Subscription = 3;
+}
+message Export {
+    /* TODO: unknown type Integer */ ID = 1;
+    string Name = 2;
+    string StoredProcedureName = 3;
+    string Category = 4;
+    bool IsActive = 5;
+}
+message FunctionalTest {
+    /* TODO: unknown type Integer */ ID = 1;
+    string Name = 2;
+}
+message FunctionalTestResult {
+    /* TODO: unknown type Integer */ ID = 1;
+    /* TODO: unknown type Integer */ FunctionalTestID = 2;
+    /* TODO: unknown type Integer */ TotalTestsExecuted = 3;
+    /* TODO: unknown type Integer */ TotalTestsPassed = 4;
+    /* TODO: unknown type Integer */ TotalTestsFailed = 5;
+    string ResultFileLocation = 6;
+    /* TODO: unknown type Integer */ EnvironmentID = 7;
+    /* TODO: unknown type Integer */ OctopusProjectID = 8;
+    string OctopusDeploymentID = 9;
+    string ExecutionResult = 10;
+    string ExecutionDate = 11;
+}
+message MetricsBug {
+    /* TODO: unknown type Integer */ ID = 1;
+    /* TODO: unknown type Integer */ AzureDevOpsID = 2;
+    string Title = 3;
+    string State = 4;
+    string AreaPath = 5;
+    /* TODO: unknown type Nullable<Integer> */ IterationID = 6;
+    string IterationPath = 7;
+    string Priority = 8;
+    string Severity = 9;
+    string CreatedDate = 10;
+    string CreatedByDisplayName = 11;
+    string DiscoveredInEnvironment = 12;
+    string ActivatedDate = 13;
+    string ActivatedByDisplayName = 14;
+    string AssignedToDisplayName = 15;
+    string ChangedDate = 16;
+    string ChangedByDisplayName = 17;
+    string ResolvedDate = 18;
+    string ResolvedByDisplayName = 19;
+    string ClosedDate = 20;
+    string ClosedByDisplayName = 21;
+    /* TODO: unknown type Nullable<Integer> */ CommentCount = 22;
+    string Tags = 23;
+    string RootCause = 24;
+    string FunctionalArea = 25;
+    bool FinanciallyRelevant = 26;
+    bool AffectsEnvironmentStability = 27;
+    string Vendor = 28;
+    string ProdSupportTicketID = 29;
+}
+message MetricsDailyCache {
+    /* TODO: unknown type Integer */ ID = 1;
+    /* TODO: unknown type Integer */ BuildTotal = 2;
+    /* TODO: unknown type Integer */ BuildSuccessTotal = 3;
+    /* TODO: unknown type Integer */ BuildFailureTotal = 4;
+    /* TODO: unknown type Float */ BuildSuccessDecimal = 5;
+    /* TODO: unknown type Integer */ UnitTestTotal = 6;
+    /* TODO: unknown type Integer */ UnitTestSuccessTotal = 7;
+    /* TODO: unknown type Integer */ UnitTestFailureTotal = 8;
+    /* TODO: unknown type Float */ UnitTestSuccessDecimal = 9;
+    /* TODO: unknown type Float */ CodeCoverageAverageDecimal = 10;
+    /* TODO: unknown type Integer */ DeploymentTotal = 11;
+    /* TODO: unknown type Integer */ DeploymentSuccessTotal = 12;
+    /* TODO: unknown type Integer */ DeploymentFailureTotal = 13;
+    /* TODO: unknown type Float */ DeploymentSuccessDecimal = 14;
+    /* TODO: unknown type Integer */ FunctionalTestTotal = 15;
+    /* TODO: unknown type Integer */ FunctionalTestSuccessTotal = 16;
+    /* TODO: unknown type Integer */ FunctionalTestFailureTotal = 17;
+    /* TODO: unknown type Float */ FunctionalTestSuccessDecimal = 18;
+    /* TODO: unknown type Integer */ IntegrationTestProjectTotal = 19;
+    /* TODO: unknown type Integer */ IntegrationTestSuccessTotal = 20;
+    /* TODO: unknown type Integer */ IntegrationTestFailureTotal = 21;
+    /* TODO: unknown type Float */ IntegrationTestSuccessDecimal = 22;
+    string LogDate = 23;
+    /* TODO: unknown type Nullable<Integer> */ CodeCoverageProjectsTotal = 24;
+}
+message MetricsPullRequest {
+    /* TODO: unknown type Integer */ ID = 1;
+    /* TODO: unknown type Integer */ AzureDevOpsID = 2;
+    string Title = 3;
+    string CreationDate = 4;
+    string CreatedByDisplayName = 5;
+    string CreatedByUniqueIDentifier = 6;
+    string FirstEngagementDate = 7;
+    string ApprovalDate = 8;
+    string ApprovedByDisplayName = 9;
+    string ApprovedByUniqueIDentifier = 10;
+    string ClosedDate = 11;
+    string ClosedByDisplayName = 12;
+    string ClosedByUniqueIDentifier = 13;
+    string RepositoryName = 14;
+    string RepositoryID = 15;
+    string Status = 16;
+    string SourceBranchName = 17;
+    string TargetBranchName = 18;
+    string MergeStatus = 19;
+    string MergeID = 20;
+    /* TODO: unknown type Nullable<Integer> */ NumberOfOriginalCommits = 21;
+    /* TODO: unknown type Nullable<Integer> */ NumberOfAdditionalCommits = 22;
+    /* TODO: unknown type Nullable<Integer> */ TotalCommits = 23;
+    /* TODO: unknown type Nullable<Integer> */ TotalCommentThreadCount = 24;
+    /* TODO: unknown type Nullable<Integer> */ CommentThreadsBeforeApproval = 25;
+    /* TODO: unknown type Nullable<Integer> */ CommentThreadsAfterApproval = 26;
+    /* TODO: unknown type Nullable<Integer> */ TotalCommentCount = 27;
+    /* TODO: unknown type Nullable<Integer> */ MostCommentsInSingleThread = 28;
+}
+message NotificationQueue {
+    /* TODO: unknown type Integer */ ID = 1;
+    string Type = 2;
+    string From_ = 3;
+    string To = 4;
+    string CC = 5;
+    string BCC = 6;
+    string Subject = 7;
+    string Body = 8;
+    bool HasBeenSent = 9;
+}
+message OctopusProject {
+    /* TODO: unknown type Integer */ ID = 1;
+    string Name = 2;
+    string OctopusProjectID = 3;
+    string OctopusProjectGroupID = 4;
+    bool IsEnabled = 5;
+}
+message ProjectCodeCoverage {
+    /* TODO: unknown type Integer */ ID = 1;
+    /* TODO: unknown type Integer */ BuildProjectID = 2;
+    /* TODO: unknown type Float */ CodeCoverageValue = 3;
+    string CodeCoverageDate = 4;
+    string ReleaseNotesPath = 5;
+}
+message ProjectRollUp {
+    /* TODO: unknown type Integer */ ID = 1;
+    string Name = 2;
+}
+message ProjectRollUpOctopusProject {
+    /* TODO: unknown type Integer */ ID = 1;
+    /* TODO: unknown type Integer */ ProjectRollUpID = 2;
+    /* TODO: unknown type Integer */ OctopusProjectID = 3;
+}
+message Release {
+    /* TODO: unknown type Integer */ ID = 1;
+    string Name = 2;
+    string ReleaseDate = 3;
+    bool IsOffCycle = 4;
+    /* TODO: unknown type Nullable<Integer> */ ReleaseStatusID = 5;
+    string DowntimeNotes = 6;
+    string ReleaseCommitDate = 7;
+    string RegressionQueryLink = 8;
+    string Description = 9;
+    string ChangeControlNumber = 10;
+    /* TODO: unknown type Nullable<Integer> */ TotalWorkItemsTaggedForRelease = 11;
+    bool IsReadyForQa = 12;
+}
+message ReleaseActivity {
+    /* TODO: unknown type Integer */ ID = 1;
+    string Title = 2;
+    /* TODO: unknown type Nullable<Integer> */ ReleaseID = 3;
+    string CreatedBy = 4;
+    string CreatedDate = 5;
+    bool IsCompliant = 6;
+    string BackOutProcedures = 7;
+    string JustificationAndPriority = 8;
+    string ProductionValidation = 9;
+    string Risk = 10;
+    string RiskLevel = 11;
+    string PriorityLevel = 12;
+    string RequiresDowntime = 13;
+    string RequiresPerformanceTesting = 14;
+    /* TODO: unknown type Nullable<Integer> */ ApplicationTeamID = 15;
+    string LastModifiedBy = 16;
+    string LastModifiedDate = 17;
+    string ChangeManagementID = 18;
+    string ExceptionReason = 19;
+    bool ExceptionGranted = 20;
+    string JiraWorkItems = 21;
+}
+message ReleaseActivityApproval {
+    /* TODO: unknown type Integer */ ID = 1;
+    /* TODO: unknown type Integer */ ReleaseActivityID = 2;
+    /* TODO: unknown type Nullable<Integer> */ ReleaseApprovalTypeID = 3;
+    string RiskAssessment = 4;
+    /* TODO: unknown type Nullable<Integer> */ ApplicationUserID = 5;
+    string CreatedDate = 6;
+    string Status = 7;
+    string Comments = 8;
+}
+message ReleaseActivityFeature {
+    /* TODO: unknown type Integer */ ID = 1;
+    /* TODO: unknown type Integer */ ReleaseActivityID = 2;
+    /* TODO: unknown type Integer */ FeatureID = 3;
+    string TeamID = 4;
+    /* TODO: unknown type Nullable<Integer> */ ParentID = 5;
+    string ParentTitle = 6;
+    string FeatureTitle = 7;
+    NaiveDate TargetDate = 8;
+}
+message ReleaseActivityRelatedApplicationUser {
+    /* TODO: unknown type Integer */ ID = 1;
+    /* TODO: unknown type Integer */ ReleaseActivityID = 2;
+    /* TODO: unknown type Integer */ ApplicationUserID = 3;
+}
+message ReleaseActivityRelatedTask {
+    /* TODO: unknown type Integer */ ID = 1;
+    /* TODO: unknown type Integer */ ReleaseActivityID = 2;
+    /* TODO: unknown type Integer */ ReleaseActivityTaskID = 3;
+    string OctopusProjectSelectedVersion = 4;
+}
+message ReleaseActivityTask {
+    /* TODO: unknown type Integer */ ID = 1;
+    string Title = 2;
+    /* TODO: unknown type Nullable<Integer> */ StageCategoryID = 3;
+    string DeploymentInstructions = 4;
+    /* TODO: unknown type Nullable<Integer> */ OctopusProjectID = 5;
+    /* TODO: unknown type Nullable<Integer> */ TargetEnvironmentID = 6;
+    bool IsHidden = 7;
+    /* TODO: unknown type Nullable<Integer> */ StageStatusID = 8;
+    /* TODO: unknown type Nullable<Integer> */ ProdUserID = 9;
+    /* TODO: unknown type Nullable<Integer> */ StageUserID = 10;
+    /* TODO: unknown type Nullable<Integer> */ ProdStatusID = 11;
+    /* TODO: unknown type Nullable<Integer> */ StageSortOrder = 12;
+    /* TODO: unknown type Nullable<Integer> */ ProdSortOrder = 13;
+    /* TODO: unknown type Nullable<Integer> */ ProdCategoryID = 14;
+    /* TODO: unknown type Nullable<Integer> */ CanonicalOrder = 15;
+    string LastModifiedBy = 16;
+    string LastModifiedDateTime = 17;
+    /* TODO: unknown type Nullable<Integer> */ DependentTaskID = 18;
+    string OctopusProjectSelectedVersion = 19;
+}
+message ReleaseActivityTaskAttachment {
+    string ID = 1;
+    /* TODO: unknown type Integer */ ReleaseActivityTaskID = 2;
+    /* TODO: unknown type Nullable<Binary> */ File = 3;
+    string FileName = 4;
+    string ContentType = 5;
+}
+message ReleaseActivityTaskCategory {
+    /* TODO: unknown type Integer */ ID = 1;
+    string Category = 2;
+    /* TODO: unknown type Nullable<Integer> */ SortOrder = 3;
+    bool IsActive = 4;
+}
+message ReleaseActivityTaskMessageQueue {
+    /* TODO: unknown type Integer */ ID = 1;
+    bool IsProcessed = 2;
+    bool HasBeenSeen = 3;
+    bool HasBeenPeeked = 4;
+    /* TODO: unknown type Integer */ ApplicationUserID = 5;
+    /* TODO: unknown type Integer */ ReleaseActivityTaskID = 6;
+    string LastModifiedBy = 7;
+    string LastModifiedDateTime = 8;
+    string ReleaseEnvironment = 9;
+}
+message ReleaseActivityTaskStatu {
+    /* TODO: unknown type Integer */ ID = 1;
+    string Status = 2;
+}
+message ReleaseActivityTaskTargetEnvironment {
+    /* TODO: unknown type Integer */ ID = 1;
+    string TargetEnvironment = 2;
+}
+message ReleaseApproval {
+    /* TODO: unknown type Integer */ ID = 1;
+    /* TODO: unknown type Integer */ ReleaseID = 2;
+    /* TODO: unknown type Integer */ ReleaseApprovalTypeID = 3;
+    string RiskAssessment = 4;
+    /* TODO: unknown type Integer */ ApplicationUserID = 5;
+    string CreatedDate = 6;
+    string Status = 7;
+    string Comments = 8;
+}
+message ReleaseApprovalStatistic {
+    /* TODO: unknown type Integer */ ID = 1;
+    /* TODO: unknown type Integer */ ReleaseApprovalID = 2;
+    string Comments = 3;
+    string Value = 4;
+}
+message ReleaseApprovalType {
+    /* TODO: unknown type Integer */ ID = 1;
+    string Name = 2;
+    bool IsActive = 3;
+    /* TODO: unknown type Nullable<Integer> */ DisplayOrder = 4;
+    string Icon = 5;
+    string Description = 6;
+}
+message ReleaseBranchHistory {
+    /* TODO: unknown type Integer */ ID = 1;
+    /* TODO: unknown type Integer */ OctopusProjectID = 2;
+    /* TODO: unknown type Integer */ ReleaseID = 3;
+    string CreatedDate = 4;
+    string CreatedBy = 5;
+    string VersionNumber = 6;
+}
+message ReleaseRelatedApplicationUser {
+    /* TODO: unknown type Integer */ ID = 1;
+    /* TODO: unknown type Integer */ ReleaseID = 2;
+    /* TODO: unknown type Integer */ ApplicationUserID = 3;
+}
+message ReleaseRelatedCategory {
+    /* TODO: unknown type Integer */ ID = 1;
+    string Category = 2;
+    /* TODO: unknown type Integer */ ReleaseID = 3;
+    /* TODO: unknown type Integer */ SortOrder = 4;
+}
+message ReleaseStatu {
+    /* TODO: unknown type Integer */ ID = 1;
+    string Status = 2;
+}
+message RequestPathway {
+    /* TODO: unknown type Integer */ ID = 1;
+    /* TODO: unknown type Nullable<Integer> */ ToApplicationID = 2;
+    /* TODO: unknown type Nullable<Integer> */ FromApplicationID = 3;
+    string ConnectionType = 4;
+}
+message ResourceCost {
+    /* TODO: unknown type Integer */ ID = 1;
+    string Subscription = 2;
+    string ResourceGroupName = 3;
+    string ResourceGroupResourceName = 4;
+    NaiveDate CostDate = 5;
+    string Cost = 6;
+}
+message ResourceGroupCost {
+    /* TODO: unknown type Integer */ ID = 1;
+    string Subscription = 2;
+    string ResourceGroupName = 3;
+    NaiveDate CostDate = 4;
+    string Cost = 5;
+}
+message STAR {
+    /* TODO: unknown type Integer */ ID = 1;
+    string DateCreated = 2;
+}
+message STARData {
+    /* TODO: unknown type Integer */ ID = 1;
+    /* TODO: unknown type Integer */ StarID = 2;
+    string Record = 3;
+}
+message SlottingMigrationLog {
+    /* TODO: unknown type Integer */ ID = 1;
+    string OctopusProjectID = 2;
+    /* TODO: unknown type Nullable<Integer> */ ApplicationUserID = 3;
+}
+message SystemEventLog {
+    /* TODO: unknown type Integer */ ID = 1;
+    string Source = 2;
+    string Description = 3;
+    string OctopusProjectID = 4;
+    string EventDate = 5;
+}
+message UnitTestHistory {
+    /* TODO: unknown type Integer */ ID = 1;
+    /* TODO: unknown type Integer */ BuildProjectID = 2;
+    /* TODO: unknown type Integer */ MetricsDailyCacheID = 3;
+    /* TODO: unknown type Integer */ Total = 4;
+    /* TODO: unknown type Integer */ TotalSuccess = 5;
+    /* TODO: unknown type Integer */ TotalFailed = 6;
+}
+message VstsFeatureCompliance {
+    /* TODO: unknown type Integer */ ID = 1;
+    /* TODO: unknown type Integer */ FeatureID = 2;
+    string ReleaseName = 3;
+    bool IsCompliant = 4;
+    /* TODO: unknown type Integer */ NumberNonCompliantChildren = 5;
+    string LastCheckedDate = 6;
+}
+
+
+message EnquireApplicationConnectionRequest {
+    int64 id =1;
+}
+message EnquireApplicationNodeRequest {
+    int64 id =1;
+}
+message EnquireApplicationTeamRequest {
+    int64 id =1;
+}
+message EnquireApplicationUserRequest {
+    int64 id =1;
+}
+message EnquireApplicationUserReleaseApprovalRequest {
+    int64 id =1;
+}
+message EnquireApplicationUserReleaseAvailabilityRequest {
+    int64 id =1;
+}
+message EnquireApplicationUserRoleRequest {
+    int64 id =1;
+}
+message EnquireApplicationUserTeamRequest {
+    int64 id =1;
+}
+message EnquireAuditReleaseActivityTaskRequest {
+    int64 id =1;
+}
+message EnquireBuildHistoryRequest {
+    int64 id =1;
+}
+message EnquireBuildProjectRequest {
+    int64 id =1;
+}
+message EnquireCertificateRequest {
+    int64 id =1;
+}
+message EnquireDeploymentHistoryRequest {
+    int64 id =1;
+}
+message EnquireERTHistoryRequest {
+    int64 id =1;
+}
+message EnquireERTProjectRequest {
+    int64 id =1;
+}
+message EnquireEnvironmentRequest {
+    int64 id =1;
+}
+message EnquireExportRequest {
+    int64 id =1;
+}
+message EnquireFunctionalTestRequest {
+    int64 id =1;
+}
+message EnquireFunctionalTestResultRequest {
+    int64 id =1;
+}
+message EnquireMetricsBugRequest {
+    int64 id =1;
+}
+message EnquireMetricsDailyCacheRequest {
+    int64 id =1;
+}
+message EnquireMetricsPullRequestRequest {
+    int64 id =1;
+}
+message EnquireNotificationQueueRequest {
+    int64 id =1;
+}
+message EnquireOctopusProjectRequest {
+    int64 id =1;
+}
+message EnquireProjectCodeCoverageRequest {
+    int64 id =1;
+}
+message EnquireProjectRollUpRequest {
+    int64 id =1;
+}
+message EnquireProjectRollUpOctopusProjectRequest {
+    int64 id =1;
+}
+message EnquireReleaseRequest {
+    int64 id =1;
+}
+message EnquireReleaseActivityRequest {
+    int64 id =1;
+}
+message EnquireReleaseActivityApprovalRequest {
+    int64 id =1;
+}
+message EnquireReleaseActivityFeatureRequest {
+    int64 id =1;
+}
+message EnquireReleaseActivityRelatedApplicationUserRequest {
+    int64 id =1;
+}
+message EnquireReleaseActivityRelatedTaskRequest {
+    int64 id =1;
+}
+message EnquireReleaseActivityTaskRequest {
+    int64 id =1;
+}
+message EnquireReleaseActivityTaskAttachmentRequest {
+    int64 id =1;
+}
+message EnquireReleaseActivityTaskCategoryRequest {
+    int64 id =1;
+}
+message EnquireReleaseActivityTaskMessageQueueRequest {
+    int64 id =1;
+}
+message EnquireReleaseActivityTaskStatuRequest {
+    int64 id =1;
+}
+message EnquireReleaseActivityTaskTargetEnvironmentRequest {
+    int64 id =1;
+}
+message EnquireReleaseApprovalRequest {
+    int64 id =1;
+}
+message EnquireReleaseApprovalStatisticRequest {
+    int64 id =1;
+}
+message EnquireReleaseApprovalTypeRequest {
+    int64 id =1;
+}
+message EnquireReleaseBranchHistoryRequest {
+    int64 id =1;
+}
+message EnquireReleaseRelatedApplicationUserRequest {
+    int64 id =1;
+}
+message EnquireReleaseRelatedCategoryRequest {
+    int64 id =1;
+}
+message EnquireReleaseStatuRequest {
+    int64 id =1;
+}
+message EnquireRequestPathwayRequest {
+    int64 id =1;
+}
+message EnquireResourceCostRequest {
+    int64 id =1;
+}
+message EnquireResourceGroupCostRequest {
+    int64 id =1;
+}
+message EnquireSTARRequest {
+    int64 id =1;
+}
+message EnquireSTARDataRequest {
+    int64 id =1;
+}
+message EnquireSlottingMigrationLogRequest {
+    int64 id =1;
+}
+message EnquireSystemEventLogRequest {
+    int64 id =1;
+}
+message EnquireUnitTestHistoryRequest {
+    int64 id =1;
+}
+message EnquireVstsFeatureComplianceRequest {
+    int64 id =1;
+}
+
+
+service MessageRpc {
+    rpc getApplicationConnection (EnquireApplicationConnectionRequest) returns (ApplicationConnection) { }
+    rpc getApplicationNode (EnquireApplicationNodeRequest) returns (ApplicationNode) { }
+    rpc getApplicationTeam (EnquireApplicationTeamRequest) returns (ApplicationTeam) { }
+    rpc getApplicationUser (EnquireApplicationUserRequest) returns (ApplicationUser) { }
+    rpc getApplicationUserReleaseApproval (EnquireApplicationUserReleaseApprovalRequest) returns (ApplicationUserReleaseApproval) { }
+    rpc getApplicationUserReleaseAvailability (EnquireApplicationUserReleaseAvailabilityRequest) returns (ApplicationUserReleaseAvailability) { }
+    rpc getApplicationUserRole (EnquireApplicationUserRoleRequest) returns (ApplicationUserRole) { }
+    rpc getApplicationUserTeam (EnquireApplicationUserTeamRequest) returns (ApplicationUserTeam) { }
+    rpc getAuditReleaseActivityTask (EnquireAuditReleaseActivityTaskRequest) returns (AuditReleaseActivityTask) { }
+    rpc getBuildHistory (EnquireBuildHistoryRequest) returns (BuildHistory) { }
+    rpc getBuildProject (EnquireBuildProjectRequest) returns (BuildProject) { }
+    rpc getCertificate (EnquireCertificateRequest) returns (Certificate) { }
+    rpc getDeploymentHistory (EnquireDeploymentHistoryRequest) returns (DeploymentHistory) { }
+    rpc getERTHistory (EnquireERTHistoryRequest) returns (ERTHistory) { }
+    rpc getERTProject (EnquireERTProjectRequest) returns (ERTProject) { }
+    rpc getEnvironment (EnquireEnvironmentRequest) returns (Environment) { }
+    rpc getExport (EnquireExportRequest) returns (Export) { }
+    rpc getFunctionalTest (EnquireFunctionalTestRequest) returns (FunctionalTest) { }
+    rpc getFunctionalTestResult (EnquireFunctionalTestResultRequest) returns (FunctionalTestResult) { }
+    rpc getMetricsBug (EnquireMetricsBugRequest) returns (MetricsBug) { }
+    rpc getMetricsDailyCache (EnquireMetricsDailyCacheRequest) returns (MetricsDailyCache) { }
+    rpc getMetricsPullRequest (EnquireMetricsPullRequestRequest) returns (MetricsPullRequest) { }
+    rpc getNotificationQueue (EnquireNotificationQueueRequest) returns (NotificationQueue) { }
+    rpc getOctopusProject (EnquireOctopusProjectRequest) returns (OctopusProject) { }
+    rpc getProjectCodeCoverage (EnquireProjectCodeCoverageRequest) returns (ProjectCodeCoverage) { }
+    rpc getProjectRollUp (EnquireProjectRollUpRequest) returns (ProjectRollUp) { }
+    rpc getProjectRollUpOctopusProject (EnquireProjectRollUpOctopusProjectRequest) returns (ProjectRollUpOctopusProject) { }
+    rpc getRelease (EnquireReleaseRequest) returns (Release) { }
+    rpc getReleaseActivity (EnquireReleaseActivityRequest) returns (ReleaseActivity) { }
+    rpc getReleaseActivityApproval (EnquireReleaseActivityApprovalRequest) returns (ReleaseActivityApproval) { }
+    rpc getReleaseActivityFeature (EnquireReleaseActivityFeatureRequest) returns (ReleaseActivityFeature) { }
+    rpc getReleaseActivityRelatedApplicationUser (EnquireReleaseActivityRelatedApplicationUserRequest) returns (ReleaseActivityRelatedApplicationUser) { }
+    rpc getReleaseActivityRelatedTask (EnquireReleaseActivityRelatedTaskRequest) returns (ReleaseActivityRelatedTask) { }
+    rpc getReleaseActivityTask (EnquireReleaseActivityTaskRequest) returns (ReleaseActivityTask) { }
+    rpc getReleaseActivityTaskAttachment (EnquireReleaseActivityTaskAttachmentRequest) returns (ReleaseActivityTaskAttachment) { }
+    rpc getReleaseActivityTaskCategory (EnquireReleaseActivityTaskCategoryRequest) returns (ReleaseActivityTaskCategory) { }
+    rpc getReleaseActivityTaskMessageQueue (EnquireReleaseActivityTaskMessageQueueRequest) returns (ReleaseActivityTaskMessageQueue) { }
+    rpc getReleaseActivityTaskStatu (EnquireReleaseActivityTaskStatuRequest) returns (ReleaseActivityTaskStatu) { }
+    rpc getReleaseActivityTaskTargetEnvironment (EnquireReleaseActivityTaskTargetEnvironmentRequest) returns (ReleaseActivityTaskTargetEnvironment) { }
+    rpc getReleaseApproval (EnquireReleaseApprovalRequest) returns (ReleaseApproval) { }
+    rpc getReleaseApprovalStatistic (EnquireReleaseApprovalStatisticRequest) returns (ReleaseApprovalStatistic) { }
+    rpc getReleaseApprovalType (EnquireReleaseApprovalTypeRequest) returns (ReleaseApprovalType) { }
+    rpc getReleaseBranchHistory (EnquireReleaseBranchHistoryRequest) returns (ReleaseBranchHistory) { }
+    rpc getReleaseRelatedApplicationUser (EnquireReleaseRelatedApplicationUserRequest) returns (ReleaseRelatedApplicationUser) { }
+    rpc getReleaseRelatedCategory (EnquireReleaseRelatedCategoryRequest) returns (ReleaseRelatedCategory) { }
+    rpc getReleaseStatu (EnquireReleaseStatuRequest) returns (ReleaseStatu) { }
+    rpc getRequestPathway (EnquireRequestPathwayRequest) returns (RequestPathway) { }
+    rpc getResourceCost (EnquireResourceCostRequest) returns (ResourceCost) { }
+    rpc getResourceGroupCost (EnquireResourceGroupCostRequest) returns (ResourceGroupCost) { }
+    rpc getSTAR (EnquireSTARRequest) returns (STAR) { }
+    rpc getSTARData (EnquireSTARDataRequest) returns (STARData) { }
+    rpc getSlottingMigrationLog (EnquireSlottingMigrationLogRequest) returns (SlottingMigrationLog) { }
+    rpc getSystemEventLog (EnquireSystemEventLogRequest) returns (SystemEventLog) { }
+    rpc getUnitTestHistory (EnquireUnitTestHistoryRequest) returns (UnitTestHistory) { }
+    rpc getVstsFeatureCompliance (EnquireVstsFeatureComplianceRequest) returns (VstsFeatureCompliance) { }
+}
