@@ -4,7 +4,6 @@ use diesel::prelude::*;
 use dotenvy::dotenv;
 use std::env;
 
-
 pub mod models;
 pub mod schema;
 
@@ -18,15 +17,15 @@ pub fn establish_connection() -> PgConnection {
 }
 
 
-use self::models::{NewApplicationConnection, ApplicationConnection};
+use self::models::{NewVstsFeatureCompliance, VstsFeatureCompliance};
+#[allow(non_snake_case)]
+pub fn create_vsts_feature_compliance(conn: &mut PgConnection, FeatureID: i32, ReleaseName: String, IsCompliant: bool, NumberNonCompliantChildren: i32, LastCheckedDate: NaiveDateTime) -> VstsFeatureCompliance {
+    use crate::schema::VstsFeatureCompliance;
+    println!("lib");
+    let new_vsts_feature_compliance = NewVstsFeatureCompliance { FeatureID, ReleaseName, IsCompliant, NumberNonCompliantChildren, LastCheckedDate };
 
-pub fn create_post(conn: &mut PgConnection, FromApplicationID: i32, ToApplicationID: i32, RequiresCert: bool, RequiresKey: bool, RequiresAzureADAuth: bool, ConnectionType: String, DateAdded: NaiveDateTime) -> ApplicationConnection {
-    use crate::schema::ApplicationConnection;
-
-    let new_app_connection = NewApplicationConnection { FromApplicationID, ToApplicationID, RequiresCert, RequiresKey, RequiresAzureADAuth, ConnectionType, DateAdded };
-
-    diesel::insert_into(ApplicationConnection::table)
-        .values(&new_app_connection)
+    diesel::insert_into(VstsFeatureCompliance::table)
+        .values(&new_vsts_feature_compliance)
         .get_result(conn)
         .expect("Error saving new post")
 }

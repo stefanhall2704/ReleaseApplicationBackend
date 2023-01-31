@@ -8,6 +8,7 @@ use chrono::NaiveDateTime;
 use diesel::{Insertable, Queryable, Identifiable};
 use diesel;
 use diesel::prelude::*;
+// Import Schemas with alias
 use crate::schema::{ ApplicationConnection as application_connection,
     ApplicationNode as application_node,
     ApplicationTeam as application_team,
@@ -47,7 +48,7 @@ use crate::schema::{ ApplicationConnection as application_connection,
     ReleaseActivityTaskMessageQueue as release_activity_task_message_queue,
     ReleaseActivityTaskStatus as release_activity_task_status,
     ReleaseActivityTaskTargetEnvironment as release_activity_task_target_environment,
-    ReleaseApproval as release_approver,
+    ReleaseApproval as release_approval,
     ReleaseApprovalStatistic as release_approval_statistic,
     ReleaseApprovalType as release_approval_type,
     ReleaseBranchHistory as release_branch_history,
@@ -64,6 +65,8 @@ use crate::schema::{ ApplicationConnection as application_connection,
     VstsFeatureCompliance as vsts_feature_compliance
 };
 
+
+//==============================================================================================
 #[derive(Queryable)]
 pub struct ApplicationConnection {
     pub ID: i32,
@@ -84,15 +87,13 @@ pub struct NewApplicationConnection {
     pub RequiresCert: bool,
     pub RequiresKey: bool,
     pub RequiresAzureADAuth: bool,
-    pub ConnectionType: String,
-    pub DateAdded: NaiveDateTime,
+    pub ConnectionType: Option<String>,
+    pub DateAdded: Option<NaiveDateTime>,
 }
 
 
-
-#[derive(Queryable, Debug)]
-#[diesel(table_name = ApplicationNode)]
-#[diesel(primary_key(ID))]
+//==============================================================================================
+#[derive(Queryable)]
 pub struct ApplicationNode {
     pub ID: i32,
     pub OctopusID: i32,
@@ -103,8 +104,18 @@ pub struct ApplicationNode {
     pub DateAdded: Option<NaiveDateTime>,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=application_node)]
+pub struct NewApplicationNode {
+    pub OctopusID: i32,
+    pub ApplicationName: String,
+    pub ApplicationType: Option<String>,
+    pub IsIncludedInImminentRelease: Option<bool>,
+    pub ServerGroupDescription: Option<String>,
+    pub DateAdded: Option<NaiveDateTime>,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct ApplicationTeam {
     pub ID: i32,
     pub Name: String,
@@ -112,9 +123,15 @@ pub struct ApplicationTeam {
     pub SourceControlTeamID: Option<String>,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = ApplicationUser)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=application_team)]
+pub struct NewApplicationTeam {
+    pub Name: String,
+    pub IsActive: Option<bool>,
+    pub SourceControlTeamID: Option<String>,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct ApplicationUser {
     pub ID: i32,
     pub First: String,
@@ -128,18 +145,35 @@ pub struct ApplicationUser {
     pub ApplicationTeamID: Option<i32>,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = ApplicationUserReleaseApproval)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=application_user)]
+pub struct NewApplicationUser {
+    pub First: String,
+    pub Last: String,
+    pub ADUsername: String,
+    pub Email: String,
+    pub PrimaryPhone: Option<String>,
+    pub SecondaryPhone: Option<String>,
+    pub ApplicationUserRoleID: i32,
+    pub IsActive: Option<i32>,
+    pub ApplicationTeamID: Option<i32>,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct ApplicationUserReleaseApproval {
     pub ID: i32,
     pub ApplicationUserID: i32,
     pub ReleaseApprovalTypeID: i32,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = ApplicationUserReleaseAvailability)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=application_user_release_approval)]
+pub struct NewApplicationUserReleaseApproval {
+    pub ApplicationUserID: i32,
+    pub ReleaseApprovalTypeID: i32,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct ApplicationUserReleaseAvailability {
     pub ID: i32,
     pub ReleaseID: i32,
@@ -147,17 +181,27 @@ pub struct ApplicationUserReleaseAvailability {
     pub SupportAvailability: Option<String>,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = ApplicationUserRole)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=application_user_release_availability)]
+pub struct NewApplicationUserReleaseAvailability {
+    pub ReleaseID: i32,
+    pub ApplicationUserID: i32,
+    pub SupportAvailability: Option<String>,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct ApplicationUserRole {
     pub ID: i32,
     pub Role: String,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = ApplicationUserTeam)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=application_user_role)]
+pub struct NewApplicationUserRole {
+    pub Role: String,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct ApplicationUserTeam {
     pub ID: i32,
     pub ApplicationUserID: i32,
@@ -168,9 +212,18 @@ pub struct ApplicationUserTeam {
     pub IsDefault: bool,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = AuditReleaseActivityTask)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=application_user_team)]
+pub struct NewApplicationUserTeam {
+    pub ApplicationUserID: i32,
+    pub ApplicationTeamID: i32,
+    pub IsMember: bool,
+    pub IsSubscriber: bool,
+    pub IsAdmin: bool,
+    pub IsDefault: bool,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct AuditReleaseActivityTask {
     pub ID: i32,
     pub ReleaseActivityTaskID: Option<i32>,
@@ -194,9 +247,31 @@ pub struct AuditReleaseActivityTask {
     pub DependentTaskID: Option<i32>,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = BuildHistory)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=audit_release_activity_task)]
+pub struct NewAuditReleaseActivityTask {
+    pub ReleaseActivityTaskID: Option<i32>,
+    pub Title: Option<String>,
+    pub StageCategoryID: Option<i32>,
+    pub DeploymentInstructions: Option<String>,
+    pub OctopusProjectID: Option<i32>,
+    pub TargetEnvironmentID: Option<i32>,
+    pub IsHidden: Option<bool>,
+    pub StageUserID: Option<i32>,
+    pub StageStatusID: Option<i32>,
+    pub ProdUserID: Option<i32>,
+    pub ProdStatusID: Option<i32>,
+    pub StageSortOrder: Option<i32>,
+    pub ProdSortOrder: Option<i32>,
+    pub ProdCategoryID: Option<i32>,
+    pub CanonicalOrder: Option<i32>,
+    pub UpdateBy: String,
+    pub UpdatedOnDate: NaiveDateTime,
+    pub Action: String,
+    pub DependentTaskID: Option<i32>,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct BuildHistory {
     pub ID: i32,
     pub BuildProjectID: i32,
@@ -206,9 +281,17 @@ pub struct BuildHistory {
     pub TotalFailed: i32,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = BuildProject)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=build_history)]
+pub struct NewBuildHistory {
+    pub BuildProjectID: i32,
+    pub MetricsDailyCacheID: i32,
+    pub Total: i32,
+    pub TotalSuccess: i32,
+    pub TotalFailed: i32,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct BuildProject {
     pub ID: i32,
     pub Name: String,
@@ -217,9 +300,16 @@ pub struct BuildProject {
     pub Path: Option<String>,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = Certificate)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=build_project)]
+pub struct NewBuildProject {
+    pub Name: String,
+    pub OctopusProjectID: Option<i32>,
+    pub BuildDefinitionID: Option<i32>,
+    pub Path: Option<String>,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct Certificate {
     pub ID: i32,
     pub Name: String,
@@ -239,9 +329,27 @@ pub struct Certificate {
     pub RequiresDowntime: Option<String>,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = DeploymentHistory)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=certificate)]
+pub struct NewCertificate {
+    pub Name: String,
+    pub CreatedDate: NaiveDateTime,
+    pub ExpirationDate: NaiveDateTime,
+    pub Thumbprint: Option<String>,
+    pub EnvironmentID: Option<i32>,
+    pub LastModifiedDateTime: NaiveDateTime,
+    pub OctopusProjectID: Option<i32>,
+    pub SubjectCName: Option<String>,
+    pub MarkForDeletion: bool,
+    pub ReplacementSteps: Option<String>,
+    pub SerialNumber: Option<String>,
+    pub Source: Option<String>,
+    pub WorkItemID: Option<i32>,
+    pub PreviousWorkItemIDs: Option<String>,
+    pub RequiresDowntime: Option<String>,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct DeploymentHistory {
     pub ID: i32,
     pub OctopusProjectID: i32,
@@ -251,9 +359,17 @@ pub struct DeploymentHistory {
     pub TotalFailed: i32,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = ERTHistory)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=deployment_history)]
+pub struct NewDeploymentHistory {
+    pub OctopusProjectID: i32,
+    pub MetricsDailyCacheID: i32,
+    pub Total: i32,
+    pub TotalSuccess: i32,
+    pub TotalFailed: i32,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct ERTHistory {
     pub ID: i32,
     pub LogDate: NaiveDate,
@@ -263,9 +379,17 @@ pub struct ERTHistory {
     pub Status: i32,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = ERTProject)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=ert_history)]
+pub struct NewERTHistory {
+    pub LogDate: NaiveDate,
+    pub ApplicationTeamID: Option<i32>,
+    pub StartTime: Option<NaiveDateTime>,
+    pub EndTime: Option<NaiveDateTime>,
+    pub Status: i32,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct ERTProject {
     pub ID: i32,
     pub ERTHistoryID: i32,
@@ -278,18 +402,34 @@ pub struct ERTProject {
     pub Order: i32,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = Environment)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=ert_project)]
+pub struct NewERTProject {
+    pub ERTHistoryID: i32,
+    pub OctopusProjectID: i32,
+    pub OctopusDeployProjectID: String,
+    pub DeploymentID: Option<String>,
+    pub Version: Option<String>,
+    pub Status: i32,
+    pub ApplicationUserID: i32,
+    pub Order: i32,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct Environment {
     pub ID: i32,
     pub Name: String,
     pub Subscription: Option<String>,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = Export)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=environment)]
+pub struct NewEnvironment {
+    pub Name: String,
+    pub Subscription: Option<String>,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct Export {
     pub ID: i32,
     pub Name: String,
@@ -298,17 +438,28 @@ pub struct Export {
     pub IsActive: bool,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = FunctionalTest)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=export)]
+pub struct NewExport {
+    pub Name: String,
+    pub StoredProcedureName: String,
+    pub Category: String,
+    pub IsActive: bool,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct FunctionalTest {
     pub ID: i32,
     pub Name: String,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = FunctionalTestResult)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=functional_test)]
+pub struct NewFunctionalTest {
+    pub Name: String,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct FunctionalTestResult {
     pub ID: i32,
     pub FunctionalTestID: i32,
@@ -323,10 +474,23 @@ pub struct FunctionalTestResult {
     pub ExecutionDate: NaiveDateTime,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = MetricsBug)]
-#[diesel(primary_key(ID))]
-pub struct MetricsBug {
+#[derive(Insertable)]
+#[diesel(table_name=functional_test_result)]
+pub struct NewFunctionalTestResult {
+    pub FunctionalTestID: i32,
+    pub TotalTestsExecuted: i32,
+    pub TotalTestsPassed: i32,
+    pub TotalTestsFailed: i32,
+    pub ResultFileLocation: String,
+    pub EnvironmentID: i32,
+    pub OctopusProjectID: i32,
+    pub OctopusDeploymentID: Option<String>,
+    pub ExecutionResult: String,
+    pub ExecutionDate: NaiveDateTime,
+}
+//==============================================================================================
+#[derive(Queryable)]
+pub struct MetricsBugs {
     pub ID: i32,
     pub AzureDevOpsID: i32,
     pub Title: String,
@@ -358,9 +522,40 @@ pub struct MetricsBug {
     pub ProdSupportTicketID: Option<String>,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = MetricsDailyCache)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=metrics_bugs)]
+pub struct NewMetricsBugs {
+    pub AzureDevOpsID: i32,
+    pub Title: String,
+    pub State: String,
+    pub AreaPath: Option<String>,
+    pub IterationID: Option<i32>,
+    pub IterationPath: Option<String>,
+    pub Priority: Option<String>,
+    pub Severity: Option<String>,
+    pub CreatedDate: NaiveDateTime,
+    pub CreatedByDisplayName: Option<String>,
+    pub DiscoveredInEnvironment: Option<String>,
+    pub ActivatedDate: Option<NaiveDateTime>,
+    pub ActivatedByDisplayName: Option<String>,
+    pub AssignedToDisplayName: Option<String>,
+    pub ChangedDate: Option<NaiveDateTime>,
+    pub ChangedByDisplayName: Option<String>,
+    pub ResolvedDate: Option<NaiveDateTime>,
+    pub ResolvedByDisplayName: Option<String>,
+    pub ClosedDate: Option<NaiveDateTime>,
+    pub ClosedByDisplayName: Option<String>,
+    pub CommentCount: Option<i32>,
+    pub Tags: Option<String>,
+    pub RootCause: Option<String>,
+    pub FunctionalArea: Option<String>,
+    pub FinanciallyRelevant: Option<bool>,
+    pub AffectsEnvironmentStability: Option<bool>,
+    pub Vendor: Option<String>,
+    pub ProdSupportTicketID: Option<String>,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct MetricsDailyCache {
     pub ID: i32,
     pub BuildTotal: i32,
@@ -388,10 +583,36 @@ pub struct MetricsDailyCache {
     pub CodeCoverageProjectsTotal: Option<i32>,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = MetricsPullRequest)]
-#[diesel(primary_key(ID))]
-pub struct MetricsPullRequest {
+#[derive(Insertable)]
+#[diesel(table_name=metrics_daily_cache)]
+pub struct NewMetricsDailyCache {
+    pub BuildTotal: i32,
+    pub BuildSuccessTotal: i32,
+    pub BuildFailureTotal: i32,
+    pub BuildSuccessDecimal: f32,
+    pub UnitTestTotal: i32,
+    pub UnitTestSuccessTotal: i32,
+    pub UnitTestFailureTotal: i32,
+    pub UnitTestSuccessDecimal: f32,
+    pub CodeCoverageAverageDecimal: f32,
+    pub DeploymentTotal: i32,
+    pub DeploymentSuccessTotal: i32,
+    pub DeploymentFailureTotal: i32,
+    pub DeploymentSuccessDecimal: f32,
+    pub FunctionalTestTotal: i32,
+    pub FunctionalTestSuccessTotal: i32,
+    pub FunctionalTestFailureTotal: i32,
+    pub FunctionalTestSuccessDecimal: f32,
+    pub IntegrationTestProjectTotal: i32,
+    pub IntegrationTestSuccessTotal: i32,
+    pub IntegrationTestFailureTotal: i32,
+    pub IntegrationTestSuccessDecimal: f32,
+    pub LogDate: NaiveDateTime,
+    pub CodeCoverageProjectsTotal: Option<i32>,
+}
+//==============================================================================================
+#[derive(Queryable)]
+pub struct MetricsPullRequests {
     pub ID: i32,
     pub AzureDevOpsID: i32,
     pub Title: String,
@@ -422,9 +643,39 @@ pub struct MetricsPullRequest {
     pub MostCommentsInSingleThread: Option<i32>,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = NotificationQueue)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=metrics_pull_requests)]
+pub struct NewMetricsPullRequests {
+    pub AzureDevOpsID: i32,
+    pub Title: String,
+    pub CreationDate: NaiveDateTime,
+    pub CreatedByDisplayName: String,
+    pub CreatedByUniqueIDentifier: String,
+    pub FirstEngagementDate: Option<NaiveDateTime>,
+    pub ApprovalDate: Option<NaiveDateTime>,
+    pub ApprovedByDisplayName: Option<String>,
+    pub ApprovedByUniqueIDentifier: Option<String>,
+    pub ClosedDate: Option<NaiveDateTime>,
+    pub ClosedByDisplayName: Option<String>,
+    pub ClosedByUniqueIDentifier: Option<String>,
+    pub RepositoryName: String,
+    pub RepositoryID: String,
+    pub Status: String,
+    pub SourceBranchName: String,
+    pub TargetBranchName: String,
+    pub MergeStatus: Option<String>,
+    pub MergeID: Option<String>,
+    pub NumberOfOriginalCommits: Option<i32>,
+    pub NumberOfAdditionalCommits: Option<i32>,
+    pub TotalCommits: Option<i32>,
+    pub TotalCommentThreadCount: Option<i32>,
+    pub CommentThreadsBeforeApproval: Option<i32>,
+    pub CommentThreadsAfterApproval: Option<i32>,
+    pub TotalCommentCount: Option<i32>,
+    pub MostCommentsInSingleThread: Option<i32>,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct NotificationQueue {
     pub ID: i32,
     pub Type: String,
@@ -437,9 +688,20 @@ pub struct NotificationQueue {
     pub HasBeenSent: bool,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = OctopusProject)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=notification_queue)]
+pub struct NewNotificationQueue {
+    pub Type: String,
+    pub From_: String,
+    pub To: String,
+    pub CC: String,
+    pub BCC: String,
+    pub Subject: String,
+    pub Body: String,
+    pub HasBeenSent: bool,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct OctopusProject {
     pub ID: i32,
     pub Name: String,
@@ -448,9 +710,16 @@ pub struct OctopusProject {
     pub IsEnabled: Option<bool>,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = ProjectCodeCoverage)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=octopus_project)]
+pub struct NewOctopusProject {
+    pub Name: String,
+    pub OctopusProjectID: String,
+    pub OctopusProjectGroupID: String,
+    pub IsEnabled: Option<bool>,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct ProjectCodeCoverage {
     pub ID: i32,
     pub BuildProjectID: i32,
@@ -459,26 +728,42 @@ pub struct ProjectCodeCoverage {
     pub ReleaseNotesPath: Option<String>,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = ProjectRollUp)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=project_code_coverage)]
+pub struct NewProjectCodeCoverage {
+    pub BuildProjectID: i32,
+    pub CodeCoverageValue: f32,
+    pub CodeCoverageDate: NaiveDateTime,
+    pub ReleaseNotesPath: Option<String>,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct ProjectRollUp {
     pub ID: i32,
     pub Name: String,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = ProjectRollUpOctopusProject)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=project_roll_up)]
+pub struct NewProjectRollUp {
+    pub Name: String,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct ProjectRollUpOctopusProject {
     pub ID: i32,
     pub ProjectRollUpID: i32,
     pub OctopusProjectID: i32,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = Release)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=project_roll_up_octopus_project)]
+pub struct NewProjectRollUpOctopusProject {
+    pub ProjectRollUpID: i32,
+    pub OctopusProjectID: i32,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct Release {
     pub ID: i32,
     pub Name: String,
@@ -494,9 +779,23 @@ pub struct Release {
     pub IsReadyForQa: Option<bool>,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = ReleaseActivity)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=release)]
+pub struct NewRelease {
+    pub Name: String,
+    pub ReleaseDate: NaiveDateTime,
+    pub IsOffCycle: Option<bool>,
+    pub ReleaseStatusID: Option<i32>,
+    pub DowntimeNotes: Option<String>,
+    pub ReleaseCommitDate: String,
+    pub RegressionQueryLink: Option<String>,
+    pub Description: Option<String>,
+    pub ChangeControlNumber: Option<String>,
+    pub TotalWorkItemsTaggedForRelease: Option<i32>,
+    pub IsReadyForQa: Option<bool>,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct ReleaseActivity {
     pub ID: i32,
     pub Title: String,
@@ -521,9 +820,32 @@ pub struct ReleaseActivity {
     pub JiraWorkItems: Option<String>,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = ReleaseActivityApproval)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=release_activity)]
+pub struct NewReleaseActivity {
+    pub Title: String,
+    pub ReleaseID: Option<i32>,
+    pub CreatedBy: Option<String>,
+    pub CreatedDate: Option<NaiveDateTime>,
+    pub IsCompliant: Option<bool>,
+    pub BackOutProcedures: Option<String>,
+    pub JustificationAndPriority: Option<String>,
+    pub ProductionValidation: Option<String>,
+    pub Risk: Option<String>,
+    pub RiskLevel: Option<String>,
+    pub PriorityLevel: Option<String>,
+    pub RequiresDowntime: String,
+    pub RequiresPerformanceTesting: String,
+    pub ApplicationTeamID: Option<i32>,
+    pub LastModifiedBy: Option<String>,
+    pub LastModifiedDate: Option<NaiveDateTime>,
+    pub ChangeManagementID: Option<String>,
+    pub ExceptionReason: Option<String>,
+    pub ExceptionGranted: Option<bool>,
+    pub JiraWorkItems: Option<String>,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct ReleaseActivityApproval {
     pub ID: i32,
     pub ReleaseActivityID: i32,
@@ -535,9 +857,19 @@ pub struct ReleaseActivityApproval {
     pub Comments: Option<String>,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = ReleaseActivityFeature)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=release_activity_approval)]
+pub struct NewReleaseActivityApproval {
+    pub ReleaseActivityID: i32,
+    pub ReleaseApprovalTypeID: Option<i32>,
+    pub RiskAssessment: Option<String>,
+    pub ApplicationUserID: Option<i32>,
+    pub CreatedDate: Option<NaiveDateTime>,
+    pub Status: Option<String>,
+    pub Comments: Option<String>,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct ReleaseActivityFeature {
     pub ID: i32,
     pub ReleaseActivityID: i32,
@@ -549,18 +881,33 @@ pub struct ReleaseActivityFeature {
     pub TargetDate: Option<NaiveDate>,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = ReleaseActivityRelatedApplicationUser)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=release_activity_feature)]
+pub struct NewReleaseActivityFeature {
+    pub ReleaseActivityID: i32,
+    pub FeatureID: i32,
+    pub TeamID: Option<String>,
+    pub ParentID: Option<i32>,
+    pub ParentTitle: Option<String>,
+    pub FeatureTitle: Option<String>,
+    pub TargetDate: Option<NaiveDate>,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct ReleaseActivityRelatedApplicationUser {
     pub ID: i32,
     pub ReleaseActivityID: i32,
     pub ApplicationUserID: i32,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = ReleaseActivityRelatedTask)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=release_activity_related_application_user)]
+pub struct NewReleaseActivityRelatedApplicationUser {
+    pub ReleaseActivityID: i32,
+    pub ApplicationUserID: i32,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct ReleaseActivityRelatedTask {
     pub ID: i32,
     pub ReleaseActivityID: i32,
@@ -568,9 +915,15 @@ pub struct ReleaseActivityRelatedTask {
     pub OctopusProjectSelectedVersion: Option<String>,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = ReleaseActivityTask)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=release_activity_related_task)]
+pub struct NewReleaseActivityRelatedTask {
+    pub ReleaseActivityID: i32,
+    pub ReleaseActivityTaskID: i32,
+    pub OctopusProjectSelectedVersion: Option<String>,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct ReleaseActivityTask {
     pub ID: i32,
     pub Title: Option<String>,
@@ -593,9 +946,30 @@ pub struct ReleaseActivityTask {
     pub OctopusProjectSelectedVersion: Option<String>,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = ReleaseActivityTaskAttachment)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=release_activity_task)]
+pub struct NewReleaseActivityTask {
+    pub Title: Option<String>,
+    pub StageCategoryID: Option<i32>,
+    pub DeploymentInstructions: Option<String>,
+    pub OctopusProjectID: Option<i32>,
+    pub TargetEnvironmentID: Option<i32>,
+    pub IsHidden: Option<bool>,
+    pub StageStatusID: Option<i32>,
+    pub ProdUserID: Option<i32>,
+    pub StageUserID: Option<i32>,
+    pub ProdStatusID: Option<i32>,
+    pub StageSortOrder: Option<i32>,
+    pub ProdSortOrder: Option<i32>,
+    pub ProdCategoryID: Option<i32>,
+    pub CanonicalOrder: Option<i32>,
+    pub LastModifiedBy: Option<String>,
+    pub LastModifiedDateTime: Option<NaiveDateTime>,
+    pub DependentTaskID: Option<i32>,
+    pub OctopusProjectSelectedVersion: Option<String>,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct ReleaseActivityTaskAttachment {
     pub ID: String,
     pub ReleaseActivityTaskID: i32,
@@ -604,9 +978,16 @@ pub struct ReleaseActivityTaskAttachment {
     pub ContentType: Option<String>,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = ReleaseActivityTaskCategory)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=release_activity_task_attachment)]
+pub struct NewReleaseActivityTaskAttachment {
+    pub ReleaseActivityTaskID: i32,
+    pub File: Option<Vec<u8>>,
+    pub FileName: Option<String>,
+    pub ContentType: Option<String>,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct ReleaseActivityTaskCategory {
     pub ID: i32,
     pub Category: Option<String>,
@@ -614,9 +995,15 @@ pub struct ReleaseActivityTaskCategory {
     pub IsActive: Option<bool>,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = ReleaseActivityTaskMessageQueue)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=release_activity_task_category)]
+pub struct NewReleaseActivityTaskCategory {
+    pub Category: Option<String>,
+    pub SortOrder: Option<i32>,
+    pub IsActive: Option<bool>,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct ReleaseActivityTaskMessageQueue {
     pub ID: i32,
     pub IsProcessed: bool,
@@ -629,25 +1016,44 @@ pub struct ReleaseActivityTaskMessageQueue {
     pub ReleaseEnvironment: Option<String>,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = ReleaseActivityTaskStatu)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=release_activity_task_message_queue)]
+pub struct NewReleaseActivityTaskMessageQueue {
+    pub IsProcessed: bool,
+    pub HasBeenSeen: bool,
+    pub HasBeenPeeked: bool,
+    pub ApplicationUserID: i32,
+    pub ReleaseActivityTaskID: i32,
+    pub LastModifiedBy: Option<String>,
+    pub LastModifiedDateTime: Option<NaiveDateTime>,
+    pub ReleaseEnvironment: Option<String>,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct ReleaseActivityTaskStatus {
     pub ID: i32,
     pub Status: String,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = ReleaseActivityTaskTargetEnvironment)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=release_activity_task_status)]
+pub struct NewReleaseActivityTaskStatus {
+    pub Status: String,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct ReleaseActivityTaskTargetEnvironment {
     pub ID: i32,
     pub TargetEnvironment: String,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = ReleaseApproval)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=release_activity_task_target_environment)]
+pub struct NewReleaseActivityTaskTargetEnvironment {
+    pub TargetEnvironment: String,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct ReleaseApproval {
     pub ID: i32,
     pub ReleaseID: i32,
@@ -659,9 +1065,19 @@ pub struct ReleaseApproval {
     pub Comments: Option<String>,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = ReleaseApprovalStatistic)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=release_approval)]
+pub struct NewReleaseApproval {
+    pub ReleaseID: i32,
+    pub ReleaseApprovalTypeID: i32,
+    pub RiskAssessment: Option<String>,
+    pub ApplicationUserID: i32,
+    pub CreatedDate: Option<NaiveDateTime>,
+    pub Status: Option<String>,
+    pub Comments: Option<String>,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct ReleaseApprovalStatistic {
     pub ID: i32,
     pub ReleaseApprovalID: i32,
@@ -669,9 +1085,15 @@ pub struct ReleaseApprovalStatistic {
     pub Value: Option<String>,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = ReleaseApprovalType)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=release_approval_statistic)]
+pub struct NewReleaseApprovalStatistic {
+    pub ReleaseApprovalID: i32,
+    pub Comments: Option<String>,
+    pub Value: Option<String>,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct ReleaseApprovalType {
     pub ID: i32,
     pub Name: String,
@@ -681,9 +1103,17 @@ pub struct ReleaseApprovalType {
     pub Description: Option<String>,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = ReleaseBranchHistory)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=release_approval_type)]
+pub struct NewReleaseApprovalType {
+    pub Name: String,
+    pub IsActive: Option<bool>,
+    pub DisplayOrder: Option<i32>,
+    pub Icon: Option<String>,
+    pub Description: Option<String>,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct ReleaseBranchHistory {
     pub ID: i32,
     pub OctopusProjectID: i32,
@@ -693,18 +1123,31 @@ pub struct ReleaseBranchHistory {
     pub VersionNumber: Option<String>,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = ReleaseRelatedApplicationUser)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=release_branch_history)]
+pub struct NewReleaseBranchHistory {
+    pub OctopusProjectID: i32,
+    pub ReleaseID: i32,
+    pub CreatedDate: NaiveDateTime,
+    pub CreatedBy: Option<String>,
+    pub VersionNumber: Option<String>,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct ReleaseRelatedApplicationUser {
     pub ID: i32,
     pub ReleaseID: i32,
     pub ApplicationUserID: i32,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = ReleaseRelatedCategory)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=release_related_application_user)]
+pub struct NewReleaseRelatedApplicationUser {
+    pub ReleaseID: i32,
+    pub ApplicationUserID: i32,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct ReleaseRelatedCategory {
     pub ID: i32,
     pub Category: Option<String>,
@@ -712,27 +1155,43 @@ pub struct ReleaseRelatedCategory {
     pub SortOrder: i32,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = ReleaseStatus)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=release_related_category)]
+pub struct NewReleaseRelatedCategory {
+    pub Category: Option<String>,
+    pub ReleaseID: i32,
+    pub SortOrder: i32,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct ReleaseStatus {
     pub ID: i32,
     pub Status: String,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = RequestPathway)]
-#[diesel(primary_key(ID))]
-pub struct RequestPathway {
+#[derive(Insertable)]
+#[diesel(table_name=release_status)]
+pub struct NewReleaseStatus {
+    pub Status: String,
+}
+//==============================================================================================
+#[derive(Queryable)]
+pub struct RequestPathways {
     pub ID: i32,
     pub ToApplicationID: Option<i32>,
     pub FromApplicationID: Option<i32>,
     pub ConnectionType: Option<String>,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = ResourceCost)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=request_pathways)]
+pub struct NewRequestPathways {
+    pub ToApplicationID: Option<i32>,
+    pub FromApplicationID: Option<i32>,
+    pub ConnectionType: Option<String>,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct ResourceCost {
     pub ID: i32,
     pub Subscription: String,
@@ -742,9 +1201,17 @@ pub struct ResourceCost {
     pub Cost: String,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = ResourceGroupCost)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=resource_cost)]
+pub struct NewResourceCost {
+    pub Subscription: String,
+    pub ResourceGroupName: String,
+    pub ResourceGroupResourceName: String,
+    pub CostDate: Option<NaiveDate>,
+    pub Cost: String,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct ResourceGroupCost {
     pub ID: i32,
     pub Subscription: String,
@@ -753,26 +1220,42 @@ pub struct ResourceGroupCost {
     pub Cost: String,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = STAR)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=resource_group_cost)]
+pub struct NewResourceGroupCost {
+    pub Subscription: String,
+    pub ResourceGroupName: String,
+    pub CostDate: Option<NaiveDate>,
+    pub Cost: String,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct STAR {
     pub ID: i32,
     pub DateCreated: NaiveDateTime,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = SlottingMigrationLog)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=star)]
+pub struct NewSTAR {
+    pub DateCreated: NaiveDateTime,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct SlottingMigrationLog {
     pub ID: i32,
     pub OctopusProjectID: Option<String>,
     pub ApplicationUserID: Option<i32>,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = SystemEventLog)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=slotting_migration_log)]
+pub struct NewSlottingMigrationLog {
+    pub OctopusProjectID: Option<String>,
+    pub ApplicationUserID: Option<i32>,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct SystemEventLog {
     pub ID: i32,
     pub Source: String,
@@ -781,10 +1264,16 @@ pub struct SystemEventLog {
     pub EventDate: NaiveDateTime,
 }
 
-
-#[derive(Queryable, Debug)]
-#[diesel(table_name = UnitTestHistory)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=system_event_log)]
+pub struct NewSystemEventLog {
+    pub Source: String,
+    pub Description: String,
+    pub OctopusProjectID: Option<String>,
+    pub EventDate: NaiveDateTime,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct UnitTestHistory {
     pub ID: i32,
     pub BuildProjectID: i32,
@@ -794,11 +1283,29 @@ pub struct UnitTestHistory {
     pub TotalFailed: i32,
 }
 
-#[derive(Queryable, Debug)]
-#[diesel(table_name = VstsFeatureCompliance)]
-#[diesel(primary_key(ID))]
+#[derive(Insertable)]
+#[diesel(table_name=unit_test_history)]
+pub struct NewUnitTestHistory {
+    pub BuildProjectID: i32,
+    pub MetricsDailyCacheID: i32,
+    pub Total: i32,
+    pub TotalSuccess: i32,
+    pub TotalFailed: i32,
+}
+//==============================================================================================
+#[derive(Queryable)]
 pub struct VstsFeatureCompliance {
     pub ID: i32,
+    pub FeatureID: i32,
+    pub ReleaseName: String,
+    pub IsCompliant: bool,
+    pub NumberNonCompliantChildren: i32,
+    pub LastCheckedDate: NaiveDateTime,
+}
+
+#[derive(Insertable)]
+#[diesel(table_name=vsts_feature_compliance)]
+pub struct NewVstsFeatureCompliance {
     pub FeatureID: i32,
     pub ReleaseName: String,
     pub IsCompliant: bool,
