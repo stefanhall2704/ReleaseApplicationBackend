@@ -17,7 +17,7 @@ pub fn establish_connection() -> SqliteConnection{
 }
 
 
-use self::models::{NewVstsFeatureCompliance};
+use self::models::NewVstsFeatureCompliance;
 #[allow(non_snake_case)]
 pub fn create_vsts_feature_compliance(conn: &mut SqliteConnection, FeatureID: i32, ReleaseName: String, IsCompliant: bool, NumberNonCompliantChildren: i32, LastCheckedDate: NaiveDateTime) {
     use crate::schema::VstsFeatureCompliance;
@@ -35,12 +35,3 @@ pub fn create_vsts_feature_compliance(conn: &mut SqliteConnection, FeatureID: i3
         .execute(conn)
         .expect("Error saving new post");
 }
-
-// pub fn create_person<'a>(conn: &SqliteConnection, name: &'a str, age: i32) {
-//     let new_person = NewPerson { name, age };
-
-//     diesel::insert_into(people::table)
-//         .values(&new_person)
-//         .get_result(conn)
-//         .expect("Error saving new person");
-// }
