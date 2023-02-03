@@ -8,6 +8,7 @@ use chrono::NaiveDateTime;
 use diesel::{Insertable, Queryable, Identifiable};
 use diesel;
 use diesel::prelude::*;
+use serde::*;
 // Import Schemas with alias
 use crate::schema::{ ApplicationConnection as application_connection,
     ApplicationNode as application_node,
@@ -1293,7 +1294,10 @@ pub struct NewUnitTestHistory {
     pub TotalFailed: i32,
 }
 //==============================================================================================
-#[derive(Queryable)]
+
+
+
+#[derive(Queryable, Serialize)]
 pub struct VstsFeatureCompliance {
     pub ID: i32,
     pub FeatureID: i32,
@@ -1302,6 +1306,7 @@ pub struct VstsFeatureCompliance {
     pub NumberNonCompliantChildren: i32,
     pub LastCheckedDate: NaiveDateTime,
 }
+
 
 #[derive(Insertable)]
 #[diesel(table_name=vsts_feature_compliance)]

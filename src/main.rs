@@ -2,7 +2,9 @@
 // pub mod write_vsts_feature_compliance;
 #![allow(non_snake_case)]
 use chrono::NaiveDate;
-use rocket::{routes, post};
+use std::result::Result;
+
+use rocket::{routes, post, get};
 // use serde::{Serialize, Deserialize};
 extern crate rocket;
 extern crate rocket_contrib;
@@ -10,50 +12,22 @@ extern crate serde;
 extern crate serde_json;
 use serde_json::{Value};
 use test_rust::*;
-// #[derive(Serialize, Deserialize)]
-// struct Message {
-//     FeatureID: i32,
-//     ReleaseName: String,
-//     IsCompliant: bool,
-//     NumberNonCompliantChildren: i32
-// }
-
-// #[get("/api/json")]
-// fn index() -> rocket_contrib::json::Json<Message> {
-//     rocket_contrib::json::Json(Message {
-//         FeatureID: 10,
-//         ReleaseName: "23.1.5".to_string(),
-//         IsCompliant: true,
-//         NumberNonCompliantChildren: 5
-//     })
-// }
-
-// struct FeatureCompliance {
-//     FeatureID: i32.to_owned(),
-//     ReleaseName: String,
-//     IsCompliant: bool,
-//     NumberNonCompliantChildren: i32
-// }
-
-
-// #[get("/")]
-// fn index() -> JSON<FeatureCompliance>{
-//     JSON(FeatureCompliance {
-//         FeatureID: 10,
-//         ReleaseName: "23.1.5",
-//         IsCompliant: true,
-//         NumberNonCompliantChildren: 5
-//     })
-// }
-
-// fn main() {
-//     rocket::ignite().mount("/", routes![index]).launch();
-// }
 use rocket_contrib::json::{Json, JsonValue};
 use rocket_contrib::json;
 
-#[post("/api", format = "application/json", data = "<json>")]
-fn api(json: Json<JsonValue>) -> Json<JsonValue> {
+use rocket::http::Status;
+
+
+#[get("/api/getFeatureComplianceById/<id>")]
+fn get_feature_compliance(id: i32) -> Result<String, Status> {
+    get_feature_compliance_by_id(id);
+    Ok("Hello, world!".to_owned())
+    // println!("This worked, id: {}", id);
+}
+
+
+#[post("/api/createFeatureCompliance", format = "application/json", data = "<json>")]
+fn create_feature_compliance(json: Json<JsonValue>) -> Json<JsonValue> {
     let connection = &mut establish_connection();
 
     let data_string = json.to_string();
@@ -79,6 +53,6 @@ fn api(json: Json<JsonValue>) -> Json<JsonValue> {
 
 fn main() {
     rocket::ignite()
-        .mount("/", routes![api])
+        .mount("/", routes![create_feature_compliance, get_feature_compliance])
         .launch();
 }
