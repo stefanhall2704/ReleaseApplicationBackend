@@ -1308,7 +1308,7 @@ pub struct VstsFeatureCompliance {
 }
 
 
-#[derive(Insertable, Serialize, Serialize)]
+#[derive(Insertable, Serialize)]
 #[diesel(table_name=vsts_feature_compliance)]
 pub struct NewVstsFeatureCompliance {
     pub FeatureID: i32,
