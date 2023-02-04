@@ -15,10 +15,6 @@ use test_rust::*;
 use rocket_contrib::json::{Json, JsonValue};
 use rocket_contrib::json;
 
-use rocket::http::Status;
-use rocket::response::Responder;
-use rocket::response::Response;
-
 
 #[get("/api/getFeatureComplianceById/<id>")]
 fn get_feature_compliance(id: i32) -> Result<std::string::String, ()> {
@@ -56,6 +52,6 @@ fn create_feature_compliance(json: Json<JsonValue>) -> Json<JsonValue> {
 
 fn main() {
     rocket::ignite()
-        .mount("/", routes![get_feature_compliance])
+        .mount("/", routes![get_feature_compliance, create_feature_compliance])
         .launch();
 }
