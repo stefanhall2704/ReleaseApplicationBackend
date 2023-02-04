@@ -10,7 +10,7 @@ default-run = "my-binary"
 Inflector = "0.11.4"
 ccase = "0.4.1"
 chrono = { version = "0.4", features = ["serde"] }
-diesel = { version = "2.0.0", default-feature = false, features = ["sqlite", "postgres", "chrono"] }
+diesel = { version = "2.0.0", default-feature = false, features = ["sqlite","chrono"] }
 smartcore = {version = "0.3.0", features=["serde"]}
 dotenvy = "0.15"
 kv-derive = "1.0.1"

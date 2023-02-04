@@ -10,18 +10,21 @@ extern crate rocket;
 extern crate rocket_contrib;
 extern crate serde;
 extern crate serde_json;
-use serde_json::{Value};
+use serde_json::{Value, to_string};
 use test_rust::*;
 use rocket_contrib::json::{Json, JsonValue};
 use rocket_contrib::json;
 
 use rocket::http::Status;
+use rocket::response::Responder;
+use rocket::response::Response;
 
 
 #[get("/api/getFeatureComplianceById/<id>")]
-fn get_feature_compliance(id: i32) -> Result<String, Status> {
-    get_feature_compliance_by_id(id);
-    Ok("Hello, world!".to_owned())
+fn get_feature_compliance(id: i32) -> Result<std::string::String, ()> {
+    let feature_compliance = get_feature_compliance_by_id(id).unwrap();
+    let user_json = to_string(&feature_compliance).unwrap();
+    Ok(user_json)
     // println!("This worked, id: {}", id);
 }
 
@@ -53,6 +56,6 @@ fn create_feature_compliance(json: Json<JsonValue>) -> Json<JsonValue> {
 
 fn main() {
     rocket::ignite()
-        .mount("/", routes![create_feature_compliance, get_feature_compliance])
+        .mount("/", routes![get_feature_compliance])
         .launch();
 }

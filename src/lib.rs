@@ -6,7 +6,10 @@ use diesel::connection::Connection;
 use diesel::prelude::*;
 use self::models::NewVstsFeatureCompliance;
 use self::models::VstsFeatureCompliance as featureCompliance;
-use crate::schema::VstsFeatureCompliance;
+use crate::schema::VstsFeatureCompliance as featureComplianceSchema;
+use crate::schema::VstsFeatureCompliance::dsl::*;
+// use serde_json::json;
+// use serde::Serialize;
 
 pub mod models;
 pub mod schema;
@@ -31,14 +34,14 @@ pub fn create_vsts_feature_compliance(conn: &mut SqliteConnection, FeatureID: i3
         LastCheckedDate
     };
 
-    diesel::insert_into(VstsFeatureCompliance::table)
+    diesel::insert_into(featureComplianceSchema::table)
         .values(&new_vsts_feature_compliance)
         .execute(conn)
         .expect("Error saving new post");
 }
 
 #[allow(non_snake_case)]
-pub fn get_feature_compliance_by_id(id: i32) -> Result<Result<models::VstsFeatureCompliance, diesel::result::Error>, ()> {
+pub fn get_feature_compliance_by_id(id: i32) -> Result<NewVstsFeatureCompliance, ()> {
 
 
     let connection = &mut establish_connection();
@@ -49,10 +52,23 @@ pub fn get_feature_compliance_by_id(id: i32) -> Result<Result<models::VstsFeatur
     //     .expect("Error loading posts");
     // let result = results.first().unwrap();
     // Ok(Some(result[0].clone()))
-    let feature_compliance = VstsFeatureCompliance::table
-    .filter(VstsFeatureCompliance::ID.eq(id))
-    .get_result::<featureCompliance>(connection);
-    Ok(feature_compliance)
+    let feature_compliance = featureComplianceSchema::table
+    .filter(featureComplianceSchema::ID.eq(id))
+    .first::<featureCompliance>(connection).unwrap();
+
+    // let new_data = featureCompliance::find(id).first::<featureCompliance>(&connection);
+    //let users = VstsFeatureCompliance::table.load::<featureCompliance>(connection).unwrap();
+
+    // let json = serde_json::to_string(&feature_compliance).unwrap();
+    println!("THIS WORKED{}", feature_compliance.ReleaseName);
+    let data = NewVstsFeatureCompliance {
+        FeatureID: feature_compliance.FeatureID,
+        ReleaseName: feature_compliance.ReleaseName,
+        IsCompliant: feature_compliance.IsCompliant,
+        NumberNonCompliantChildren: feature_compliance.NumberNonCompliantChildren,
+        LastCheckedDate: feature_compliance.LastCheckedDate
+    };
+    Ok(data)
     // println!("Displaying {} posts", results.len());
     // for result in results {
     //     println!("{}", result.ReleaseName);
