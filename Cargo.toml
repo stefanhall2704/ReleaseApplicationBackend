@@ -10,7 +10,7 @@ default-run = "my-binary"
 Inflector = "0.11.4"
 ccase = "0.4.1"
 chrono = { version = "0.4", features = ["serde"] }
-diesel = { version = "2.0.0", default-feature = false, features = ["sqlite","chrono"] }
+diesel = { version = "2.0.0", features = ["sqlite","chrono"] }
 smartcore = {version = "0.3.0", features=["serde"]}
 dotenvy = "0.15"
 kv-derive = "1.0.1"
@@ -20,10 +20,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_derive = "1.0.151"
 serde_json = "1.0"
 rocket_contrib = { version = "0.4.10", features = ["json"] }
-cargo-watch = "3.1.1"
-
-[models]
-proc-macro = true
+cargo-watch = "8.3.0"
 
 [[bin]]
 name = "my-binary"

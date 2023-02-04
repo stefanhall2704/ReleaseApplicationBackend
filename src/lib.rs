@@ -4,13 +4,17 @@ use diesel::sqlite::SqliteConnection;
 use std::env;
 use diesel::connection::Connection;
 use diesel::prelude::*;
+
+use self::models::ApplicationTeam as application_team;
+use self::models::NewApplicationTeam;
+use self::schema::ApplicationTeam as application_team_schema;
+
 use self::models::NewVstsFeatureCompliance;
 use self::models::VstsFeatureCompliance as featureCompliance;
-use crate::schema::VstsFeatureCompliance as featureComplianceSchema;
+use self::schema::VstsFeatureCompliance as featureComplianceSchema;
 
 pub mod models;
 pub mod schema;
-
 
 pub fn establish_connection() -> SqliteConnection{
     dotenv().ok();
@@ -37,7 +41,6 @@ pub fn create_vsts_feature_compliance(conn: &mut SqliteConnection, feature_id: i
         .expect("Error saving new post");
 }
 
-#[allow(non_snake_case)]
 pub fn get_feature_compliance_by_id(id: i32) -> Result<NewVstsFeatureCompliance, ()> {
 
 
@@ -52,5 +55,32 @@ pub fn get_feature_compliance_by_id(id: i32) -> Result<NewVstsFeatureCompliance,
         NumberNonCompliantChildren: feature_compliance.NumberNonCompliantChildren,
         LastCheckedDate: feature_compliance.LastCheckedDate
     };
+    Ok(data)
+}
+
+
+#[allow(non_snake_case)]
+pub fn create_application_team(conn: &mut SqliteConnection, name: String, is_active: bool, source_control_team_id: String ) {
+    // let optional_int = is_active.unwrap();
+    let application_team = NewApplicationTeam { Name: name, IsActive: Some(is_active), SourceControlTeamID: Some(source_control_team_id) };
+
+
+    diesel::insert_into(application_team_schema::table)
+        .values(&application_team)
+        .execute(conn)
+        .expect("Error saving new post");
+}
+
+
+pub fn get_application_team_by_id(id: i32) -> Result<NewApplicationTeam, ()> {
+
+
+    let connection = &mut establish_connection();
+
+    let application_team_db = application_team_schema::table
+    .filter(application_team_schema::ID.eq(id))
+    .first::<application_team>(connection).unwrap();
+
+    let data = NewApplicationTeam { Name: application_team_db.Name, IsActive: application_team_db.IsActive, SourceControlTeamID: application_team_db.SourceControlTeamID };
     Ok(data)
 }
