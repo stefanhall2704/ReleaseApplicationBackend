@@ -5,41 +5,27 @@
 
 use chrono::NaiveDate;
 use chrono::NaiveDateTime;
-use diesel::{Insertable, Queryable, Identifiable};
 use diesel;
 use diesel::prelude::*;
+use diesel::{Identifiable, Insertable, Queryable};
 use serde::*;
 // Import Schemas with alias
-use crate::schema::{ ApplicationConnection as application_connection,
-    ApplicationNode as application_node,
-    ApplicationTeam as application_team,
-    ApplicationUser as application_user,
+use crate::schema::{
+    ApplicationConnection as application_connection, ApplicationNode as application_node,
+    ApplicationTeam as application_team, ApplicationUser as application_user,
     ApplicationUserReleaseApproval as application_user_release_approval,
     ApplicationUserReleaseAvailability as application_user_release_availability,
-    ApplicationUserRole as application_user_role,
-    ApplicationUserTeam as application_user_team,
-    AuditReleaseActivityTask as audit_release_activity_task,
-    BuildHistory as build_history,
-    BuildProject as build_project,
-    Certificate as certificate,
-    DeploymentHistory as deployment_history,
-    ERTHistory as ert_history,
-    ERTProject as ert_project,
-    Environment as environment,
-    Export as export,
-    FunctionalTest as functional_test,
-    FunctionalTestResult as functional_test_result,
-    MetricsBugs as metrics_bugs,
-    MetricsDailyCache as metrics_daily_cache,
-    MetricsPullRequests as metrics_pull_requests,
-    NotificationQueue as notification_queue,
-    OctopusProject as octopus_project,
-    ProjectCodeCoverage as project_code_coverage,
-    ProjectRollUp as project_roll_up,
-    ProjectRollUpOctopusProject as project_roll_up_octopus_project,
-    Release as release,
-    ReleaseActivity as release_activity,
-    ReleaseActivityApproval as release_activity_approval,
+    ApplicationUserRole as application_user_role, ApplicationUserTeam as application_user_team,
+    AuditReleaseActivityTask as audit_release_activity_task, BuildHistory as build_history,
+    BuildProject as build_project, Certificate as certificate,
+    DeploymentHistory as deployment_history, ERTHistory as ert_history, ERTProject as ert_project,
+    Environment as environment, Export as export, FunctionalTest as functional_test,
+    FunctionalTestResult as functional_test_result, MetricsBugs as metrics_bugs,
+    MetricsDailyCache as metrics_daily_cache, MetricsPullRequests as metrics_pull_requests,
+    NotificationQueue as notification_queue, OctopusProject as octopus_project,
+    ProjectCodeCoverage as project_code_coverage, ProjectRollUp as project_roll_up,
+    ProjectRollUpOctopusProject as project_roll_up_octopus_project, Release as release,
+    ReleaseActivity as release_activity, ReleaseActivityApproval as release_activity_approval,
     ReleaseActivityFeature as release_activity_feature,
     ReleaseActivityRelatedApplicationUser as release_activity_related_application_user,
     ReleaseActivityRelatedTask as release_activity_related_task,
@@ -49,23 +35,15 @@ use crate::schema::{ ApplicationConnection as application_connection,
     ReleaseActivityTaskMessageQueue as release_activity_task_message_queue,
     ReleaseActivityTaskStatus as release_activity_task_status,
     ReleaseActivityTaskTargetEnvironment as release_activity_task_target_environment,
-    ReleaseApproval as release_approval,
-    ReleaseApprovalStatistic as release_approval_statistic,
-    ReleaseApprovalType as release_approval_type,
-    ReleaseBranchHistory as release_branch_history,
+    ReleaseApproval as release_approval, ReleaseApprovalStatistic as release_approval_statistic,
+    ReleaseApprovalType as release_approval_type, ReleaseBranchHistory as release_branch_history,
     ReleaseRelatedApplicationUser as release_related_application_user,
-    ReleaseRelatedCategory as release_related_category,
-    ReleaseStatus as release_status,
-    RequestPathways as request_pathways,
-    ResourceCost as resource_cost,
-    ResourceGroupCost as resource_group_cost,
-    STAR as star,
-    SlottingMigrationLog as slotting_migration_log,
-    SystemEventLog as system_event_log,
-    UnitTestHistory as unit_test_history,
-    VstsFeatureCompliance as vsts_feature_compliance
+    ReleaseRelatedCategory as release_related_category, ReleaseStatus as release_status,
+    RequestPathways as request_pathways, ResourceCost as resource_cost,
+    ResourceGroupCost as resource_group_cost, SlottingMigrationLog as slotting_migration_log,
+    SystemEventLog as system_event_log, UnitTestHistory as unit_test_history,
+    VstsFeatureCompliance as vsts_feature_compliance, STAR as star,
 };
-
 
 //==============================================================================================
 #[derive(Queryable)]
@@ -91,7 +69,6 @@ pub struct NewApplicationConnection {
     pub ConnectionType: Option<String>,
     pub DateAdded: Option<NaiveDateTime>,
 }
-
 
 //==============================================================================================
 #[derive(Queryable)]
@@ -1295,8 +1272,6 @@ pub struct NewUnitTestHistory {
 }
 //==============================================================================================
 
-
-
 #[derive(Queryable, Serialize)]
 pub struct VstsFeatureCompliance {
     pub ID: i32,
@@ -1306,7 +1281,6 @@ pub struct VstsFeatureCompliance {
     pub NumberNonCompliantChildren: i32,
     pub LastCheckedDate: NaiveDateTime,
 }
-
 
 #[derive(Insertable, Serialize)]
 #[diesel(table_name=vsts_feature_compliance)]
