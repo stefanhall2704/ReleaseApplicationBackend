@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 use chrono::NaiveDate;
 use std::result::Result;
-use rocket::{post, get};
+use rocket::{post, get, delete};
 extern crate rocket;
 extern crate rocket_contrib;
 extern crate serde;
@@ -55,10 +55,10 @@ pub fn create_team(json: Json<JsonValue>) -> Json<JsonValue> {
     let v: Value = serde_json::from_str(data).unwrap();
 
     let name= v["name"].as_str().unwrap().to_owned();
-    let is_active: bool = v["is_active"].is_boolean();
+    let is_active: bool = v["is_active"].as_bool().unwrap();
     let source_control_team_id = v["source_control_team_id"].as_str().unwrap().to_owned();
 
-    create_application_team(connection, name, is_active, source_control_team_id);
+    create_application_team(connection, name, Some(is_active), Some(source_control_team_id));
 
     let response = json!({
         "received": json.into_inner(),
@@ -74,4 +74,34 @@ pub fn get_application_team(id: i32) -> Result<std::string::String, ()> {
     let application_team = get_application_team_by_id(id).unwrap();
     let user_json = to_string(&application_team).unwrap();
     Ok(user_json)
+}
+
+#[post("/api/updateTeam/<id>", format = "application/json", data = "<json>")]
+pub fn update_team_api(id: i32, json: Json<JsonValue>) -> Json<JsonValue> {
+    let connection = &mut establish_connection();
+
+    let data_string = json.to_string();
+    let data: &str = &data_string;
+    let v: Value = serde_json::from_str(data).unwrap();
+
+    let name= v["name"].as_str().unwrap().to_owned();
+    let is_active: bool = v["is_active"].as_bool().unwrap();
+    let source_control_team_id = v["source_control_team_id"].as_str().unwrap().to_owned();
+    update_application_team(connection, id, name, Some(is_active), Some(source_control_team_id));
+
+    let response = json!({
+        "received": json.into_inner(),
+        "message": format!("Team updated in database")
+    });
+
+    Json(response)
+}
+
+#[delete("/api/deleteTeamTeam/<id>", format = "application/json", data = "<json>")]
+pub fn delete_team_api(id: i32, json: Json<JsonValue>) -> Result<std::string::String, ()>{
+    println!("{}", json.to_string());
+    let connection = &mut establish_connection();
+    delete_application_team(connection, id);
+    let response = format!("Team deleted in database by id: {}", id);
+    Ok(response)
 }

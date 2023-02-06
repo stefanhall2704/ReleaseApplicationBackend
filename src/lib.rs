@@ -5,9 +5,11 @@ use std::env;
 use diesel::connection::Connection;
 use diesel::prelude::*;
 
+
 use self::models::ApplicationTeam as application_team;
 use self::models::NewApplicationTeam;
 use self::schema::ApplicationTeam as application_team_schema;
+
 
 use self::models::NewVstsFeatureCompliance;
 use self::models::VstsFeatureCompliance as featureCompliance;
@@ -60,9 +62,9 @@ pub fn get_feature_compliance_by_id(id: i32) -> Result<NewVstsFeatureCompliance,
 
 
 #[allow(non_snake_case)]
-pub fn create_application_team(conn: &mut SqliteConnection, name: String, is_active: bool, source_control_team_id: String ) {
+pub fn create_application_team(conn: &mut SqliteConnection, name: String, is_active: Option<bool>, source_control_team_id: Option<String> ) {
     // let optional_int = is_active.unwrap();
-    let application_team = NewApplicationTeam { Name: name, IsActive: Some(is_active), SourceControlTeamID: Some(source_control_team_id) };
+    let application_team = NewApplicationTeam { Name: name, IsActive: is_active, SourceControlTeamID: source_control_team_id };
 
 
     diesel::insert_into(application_team_schema::table)
@@ -83,4 +85,28 @@ pub fn get_application_team_by_id(id: i32) -> Result<NewApplicationTeam, ()> {
 
     let data = NewApplicationTeam { Name: application_team_db.Name, IsActive: application_team_db.IsActive, SourceControlTeamID: application_team_db.SourceControlTeamID };
     Ok(data)
+}
+
+
+pub fn update_application_team(conn: &mut SqliteConnection, id: i32, name: String, is_active: Option<bool>, source_control_team_id: Option<String>) {
+    let application_team_db = NewApplicationTeam { Name: name, IsActive: is_active, SourceControlTeamID: source_control_team_id };
+
+
+    diesel::update(application_team_schema::table.find(id))
+        .set((
+            application_team_schema::Name.eq(application_team_db.Name),
+            application_team_schema::IsActive.eq(application_team_db.IsActive),
+            application_team_schema::SourceControlTeamID.eq(application_team_db.SourceControlTeamID)
+        ))
+        .execute(conn)
+        .expect("Error saving new post");
+
+}
+
+
+pub fn delete_application_team(conn: &mut SqliteConnection, id: i32) {
+    diesel::delete(application_team_schema::table.find(id))
+        .execute(conn)
+        .expect("Error saving new post");
+
 }

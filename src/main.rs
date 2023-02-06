@@ -10,6 +10,6 @@ pub mod api;
 
 fn main() {
     rocket::ignite()
-        .mount("/", routes![get_feature_compliance, create_feature_compliance, create_team, get_application_team])
+        .mount("/", routes![delete_team_api, update_team_api, get_feature_compliance, create_feature_compliance, create_team, get_application_team])
         .launch();
 }
