@@ -3,7 +3,12 @@ use diesel::connection::Connection;
 use diesel::prelude::*;
 use diesel::sqlite::SqliteConnection;
 use dotenvy::dotenv;
+use std::collections::HashSet;
 use std::env;
+
+use self::models::ApplicationUserReleaseApproval as application_user_release_approval;
+use self::models::NewApplicationUserReleaseApproval;
+use self::schema::ApplicationUserReleaseApproval as application_user_release_approval_schema;
 
 use self::models::ApplicationUser as application_user;
 use self::models::NewApplicationUser;
@@ -16,6 +21,7 @@ use self::schema::ApplicationTeam as application_team_schema;
 use self::models::NewVstsFeatureCompliance;
 use self::models::VstsFeatureCompliance as featureCompliance;
 use self::schema::VstsFeatureCompliance as featureComplianceSchema;
+use serde_json::Value;
 
 pub mod models;
 pub mod schema;
@@ -131,6 +137,144 @@ pub fn delete_application_team(conn: &mut SqliteConnection, id: i32) {
     diesel::delete(application_team_schema::table.find(id))
         .execute(conn)
         .expect("Error saving new post");
+}
+
+pub fn get_user_release_approval_ids_by_user_id(
+    id: i32,
+) -> Result<Vec<NewApplicationUserReleaseApproval>, ()> {
+    let connection = &mut establish_connection();
+
+    let release_approval_ids = application_user_release_approval_schema::table
+        .filter(application_user_release_approval_schema::ApplicationUserID.eq(id))
+        .load::<application_user_release_approval>(connection)
+        .unwrap();
+    let mut release_approval_type_ids_vec = Vec::new();
+    for release_approval_id in release_approval_ids {
+        let data = NewApplicationUserReleaseApproval {
+            ApplicationUserID: release_approval_id.ApplicationUserID,
+            ReleaseApprovalTypeID: release_approval_id.ReleaseApprovalTypeID,
+        };
+        release_approval_type_ids_vec.push(data);
+    }
+
+    Ok(release_approval_type_ids_vec)
+}
+
+fn add_application_user_approval_type_id(
+    conn: &mut SqliteConnection,
+    application_user_id: i32,
+    release_approval_type_id: i32,
+) {
+    let application_user_approval_type = NewApplicationUserReleaseApproval {
+        ApplicationUserID: application_user_id,
+        ReleaseApprovalTypeID: release_approval_type_id,
+    };
+
+    diesel::insert_into(application_user_release_approval_schema::table)
+        .values(&application_user_approval_type)
+        .execute(conn)
+        .expect("Error saving new post");
+}
+
+pub fn delete_release_approval_type_id(
+    conn: &mut SqliteConnection,
+    user_id: i32,
+    release_approval_type_id: i32,
+) {
+    diesel::delete(
+        application_user_release_approval_schema::table.filter(
+            application_user_release_approval_schema::ApplicationUserID
+                .eq(user_id)
+                .and(
+                    application_user_release_approval_schema::ReleaseApprovalTypeID
+                        .eq(release_approval_type_id),
+                ),
+        ),
+    )
+    .execute(conn)
+    .expect("Error saving new post");
+}
+
+//TODO
+// fn determine_values_to_delete<'a>(release_approval_type_ids_db: Vec<&'a i32>, release_approval_type_ids: Vec<&'a i32>) -> Result<Vec<&'a i32>, ()> {
+//     let mut approval_ids_to_delete = vec![];
+//     for approval_id in release_approval_type_ids_db {
+//         if !release_approval_type_ids.contains(&approval_id) {
+//             approval_ids_to_delete.push(approval_id);
+//         }
+//     }
+//     Ok(approval_ids_to_delete)
+// }
+
+fn convert_value_to_int(release_approval_type_id: &Value) -> i32 {
+    match release_approval_type_id {
+        &serde_json::Value::Number(ref n) => {
+            if let Some(i) = n.as_i64() {
+                let approval_type_id = i as i32;
+                approval_type_id
+            } else {
+                0
+            }
+        }
+        _ => 0,
+    }
+}
+
+fn check_for_existing_application_user_release_approval_type_ids(
+    application_user_id: i32,
+    release_approval_type_id: &i32,
+) -> Result<Vec<&i32>, ()> {
+    let release_approval_type_ids_db_one =
+        get_user_release_approval_ids_by_user_id(application_user_id);
+    let mut release_approval_type_ids = Vec::new();
+    let mut vec_of_needed_release_approval_type_ids = Vec::new();
+    for release_approval_type_ids_db in release_approval_type_ids_db_one.iter() {
+        for release_approval_type_id_db in release_approval_type_ids_db.iter() {
+            let approval_id = release_approval_type_id_db.ReleaseApprovalTypeID;
+            release_approval_type_ids.push(approval_id);
+        }
+        println!("{:#?}", release_approval_type_ids);
+        let unique: HashSet<i32> = release_approval_type_ids.drain(..).collect();
+        let v_unique: Vec<i32> = unique.into_iter().collect();
+
+        if v_unique.contains(release_approval_type_id) {
+            println!("Value Exists");
+        } else {
+            vec_of_needed_release_approval_type_ids.push(release_approval_type_id);
+        }
+    }
+    Ok(vec_of_needed_release_approval_type_ids)
+}
+fn check_for_zero_value(
+    conn: &mut SqliteConnection,
+    application_user_id: i32,
+    approval_type_id: i32,
+) {
+    if approval_type_id != 0 {
+        let new_release_approval_type_ids =
+            check_for_existing_application_user_release_approval_type_ids(
+                application_user_id,
+                &approval_type_id,
+            );
+        for approval_ids_db in new_release_approval_type_ids.iter() {
+            for approval_id_db in approval_ids_db.iter() {
+                add_application_user_approval_type_id(conn, application_user_id, **approval_id_db);
+            }
+        }
+    } else {
+        println!("Value is 0");
+    }
+}
+
+pub fn add_release_approval_type(
+    conn: &mut SqliteConnection,
+    application_user_id: i32,
+    release_approval_type_ids: &Vec<Value>,
+) {
+    for release_approval_type_id in release_approval_type_ids {
+        let approval_type_id: i32 = convert_value_to_int(release_approval_type_id);
+        check_for_zero_value(conn, application_user_id, approval_type_id);
+    }
 }
 
 //User Database Functions

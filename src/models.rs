@@ -150,6 +150,12 @@ pub struct NewApplicationUserReleaseApproval {
     pub ApplicationUserID: i32,
     pub ReleaseApprovalTypeID: i32,
 }
+
+#[derive(Deserialize, Debug)]
+pub struct ApplicationUserReleaseApprovalVector {
+    array_of_i32: Vec<i32>,
+    // Other fields go here...
+}
 //==============================================================================================
 #[derive(Queryable)]
 pub struct ApplicationUserReleaseAvailability {

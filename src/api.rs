@@ -130,7 +130,6 @@ pub fn delete_team_api(id: i32, json: Json<JsonValue>) -> Result<std::string::St
 }
 
 //User API's
-
 #[post("/api/createUser", format = "application/json", data = "<json>")]
 pub fn create_user(json: Json<JsonValue>) -> Json<JsonValue> {
     let connection = &mut establish_connection();
@@ -194,7 +193,9 @@ pub fn update_user(id: i32, json: Json<JsonValue>) -> Json<JsonValue> {
     let application_user_role_id: i32 = v["application_user_role_id"].as_i64().unwrap() as i32;
     let is_active: i32 = v["application_team_id"].as_i64().unwrap() as i32;
     let application_team_id: i32 = v["is_active"].as_i64().unwrap() as i32;
+    let release_approval_type_ids = v["release_approval_type_ids"].as_array().unwrap();
 
+    add_release_approval_type(connection, id, release_approval_type_ids);
     update_application_user(
         connection,
         id,
