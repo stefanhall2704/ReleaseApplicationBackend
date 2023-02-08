@@ -22,7 +22,7 @@ fn main() {
                 get_user,
                 create_user,
                 delete_team_api,
-                update_team_api, 
+                update_team_api,
                 create_team,
                 get_application_team
             ],

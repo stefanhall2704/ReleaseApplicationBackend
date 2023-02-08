@@ -11,7 +11,6 @@ use rocket_contrib::json::{Json, JsonValue};
 use serde_json::{to_string, Value};
 use test_rust::*;
 
-
 //Team API's
 #[post("/api/createTeam", format = "application/json", data = "<json>")]
 pub fn create_team(json: Json<JsonValue>) -> Json<JsonValue> {

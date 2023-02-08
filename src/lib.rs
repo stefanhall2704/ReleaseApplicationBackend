@@ -3,9 +3,9 @@ use diesel::connection::Connection;
 use diesel::prelude::*;
 use diesel::sqlite::SqliteConnection;
 use dotenvy::dotenv;
+use serde_json::Value;
 use std::collections::HashSet;
 use std::env;
-use serde_json::Value;
 
 use self::models::NewRelease;
 use self::models::Release as release;
@@ -22,7 +22,6 @@ use self::schema::ApplicationUser as application_user_schema;
 use self::models::ApplicationTeam as application_team;
 use self::models::NewApplicationTeam;
 use self::schema::ApplicationTeam as application_team_schema;
-
 
 pub mod models;
 pub mod schema;
@@ -232,14 +231,14 @@ fn add_new_user_release_approval_type_ids(
     requested_release_approval_type_ids: &Vec<Value>,
 ) {
     if approval_type_id != 0 {
-        let release_approval_type_ids = convert_json_value_to_vec_of_ints(&requested_release_approval_type_ids);
-        let new_release_approval_type_ids =
-            get_needed_user_release_approval_type_ids(
-                conn,
-                application_user_id,
-                &approval_type_id,
-                release_approval_type_ids,
-            );
+        let release_approval_type_ids =
+            convert_json_value_to_vec_of_ints(&requested_release_approval_type_ids);
+        let new_release_approval_type_ids = get_needed_user_release_approval_type_ids(
+            conn,
+            application_user_id,
+            &approval_type_id,
+            release_approval_type_ids,
+        );
 
         for approval_ids_db in new_release_approval_type_ids.iter() {
             for approval_id_db in approval_ids_db.iter() {
