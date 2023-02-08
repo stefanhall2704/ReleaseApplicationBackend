@@ -23,7 +23,6 @@ use self::models::VstsFeatureCompliance as featureCompliance;
 use self::schema::VstsFeatureCompliance as featureComplianceSchema;
 use serde_json::Value;
 
-
 pub mod models;
 pub mod schema;
 
@@ -161,10 +160,7 @@ pub fn get_user_release_approval_ids_by_user_id(
     Ok(release_approval_type_ids_vec)
 }
 
-fn add_application_user_approval_type_id(
-    application_user_id: i32,
-    release_approval_type_id: i32,
-) {
+fn add_application_user_approval_type_id(application_user_id: i32, release_approval_type_id: i32) {
     let conn = &mut establish_connection();
     let application_user_approval_type = NewApplicationUserReleaseApproval {
         ApplicationUserID: application_user_id,
@@ -196,8 +192,12 @@ pub fn delete_release_approval_type_id(
     .expect("Error saving new post");
 }
 
-
-fn detect_duplicate_release_approval_type_ids<'a>(conn: &mut SqliteConnection, user_id: i32, release_approval_type_ids_db: Vec<&'a i32>, release_approval_type_ids: Vec<i32>) {
+fn detect_duplicate_release_approval_type_ids<'a>(
+    conn: &mut SqliteConnection,
+    user_id: i32,
+    release_approval_type_ids_db: Vec<&'a i32>,
+    release_approval_type_ids: Vec<i32>,
+) {
     let mut approval_ids_to_delete = vec![];
     for approval_id in release_approval_type_ids_db {
         if !release_approval_type_ids.contains(&approval_id) {
@@ -207,8 +207,6 @@ fn detect_duplicate_release_approval_type_ids<'a>(conn: &mut SqliteConnection, u
     for release_approval_id in approval_ids_to_delete {
         delete_release_approval_type_id(conn, user_id, *release_approval_id);
     }
-    
-    
 }
 
 fn convert_value_to_int(release_approval_type_id: &Value) -> i32 {
@@ -243,7 +241,12 @@ fn check_for_existing_application_user_release_approval_type_ids<'a>(
         let unique: HashSet<i32> = release_approval_type_ids.drain(..).collect();
         let v_unique: Vec<i32> = unique.into_iter().collect();
         let final_convert: Vec<&i32> = v_unique.iter().map(|x| x).collect();
-        detect_duplicate_release_approval_type_ids(conn, application_user_id, final_convert, all_release_approval_type_ids.clone());
+        detect_duplicate_release_approval_type_ids(
+            conn,
+            application_user_id,
+            final_convert,
+            all_release_approval_type_ids.clone(),
+        );
         if v_unique.contains(release_approval_type_id) {
             //Required print Statement
             println!("Value Exists");
@@ -254,11 +257,10 @@ fn check_for_existing_application_user_release_approval_type_ids<'a>(
     Ok(vec_of_needed_release_approval_type_ids)
 }
 
-fn convert_vec_type(vec: &Vec<serde_json::Value>) -> Vec<i32>{
+fn convert_vec_type(vec: &Vec<serde_json::Value>) -> Vec<i32> {
     vec.iter()
         .filter_map(|value| value.as_i64().map(|v| v as i32))
         .collect()
-
 }
 
 fn check_for_zero_value(
@@ -274,7 +276,7 @@ fn check_for_zero_value(
                 conn,
                 application_user_id,
                 &approval_type_id,
-                final_requested_approval_ids
+                final_requested_approval_ids,
             );
 
         // let requested_release_approval_type_ids = new_release_approval_type_ids.copy();
@@ -297,7 +299,12 @@ pub fn add_release_approval_type(
     let requested_release_approval_type_ids = release_approval_type_ids.clone();
     for release_approval_type_id in release_approval_type_ids {
         let approval_type_id: i32 = convert_value_to_int(release_approval_type_id);
-        check_for_zero_value(conn, application_user_id, approval_type_id, &requested_release_approval_type_ids);
+        check_for_zero_value(
+            conn,
+            application_user_id,
+            approval_type_id,
+            &requested_release_approval_type_ids,
+        );
     }
 }
 
