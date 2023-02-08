@@ -13,6 +13,10 @@ fn main() {
         .mount(
             "/",
             routes![
+                create_release,
+                update_release,
+                delete_release,
+                get_release,
                 delete_user,
                 update_user,
                 get_application_user,

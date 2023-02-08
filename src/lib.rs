@@ -6,6 +6,10 @@ use dotenvy::dotenv;
 use std::collections::HashSet;
 use std::env;
 
+use self::models::NewRelease;
+use self::models::Release as release;
+use self::schema::Release as release_schema;
+
 use self::models::ApplicationUserReleaseApproval as application_user_release_approval;
 use self::models::NewApplicationUserReleaseApproval;
 use self::schema::ApplicationUserReleaseApproval as application_user_release_approval_schema;
@@ -404,6 +408,121 @@ pub fn update_application_user(
 
 pub fn delete_application_user(conn: &mut SqliteConnection, id: i32) {
     diesel::delete(application_user_schema::table.find(id))
+        .execute(conn)
+        .expect("Error saving new post");
+}
+
+//Releases
+#[allow(non_snake_case)]
+pub fn create_db_release(
+    conn: &mut SqliteConnection,
+    name: String,
+    release_date: NaiveDateTime,
+    is_off_cycle: Option<bool>,
+    release_status_id: Option<i32>,
+    downtime_notes: Option<String>,
+    release_commit_date: String,
+    regression_query_link: Option<String>,
+    description: Option<String>,
+    change_control_number: Option<String>,
+    total__work_items_tagged_for_release: Option<i32>,
+    is_ready_for_qa: Option<bool>,
+) {
+    // let optional_int = is_active.unwrap();
+    let release_db = NewRelease {
+        Name: name,
+        ReleaseDate: release_date,
+        IsOffCycle: is_off_cycle,
+        ReleaseStatusID: release_status_id,
+        DowntimeNotes: downtime_notes,
+        ReleaseCommitDate: release_commit_date,
+        RegressionQueryLink: regression_query_link,
+        Description: description,
+        ChangeControlNumber: change_control_number,
+        TotalWorkItemsTaggedForRelease: total__work_items_tagged_for_release,
+        IsReadyForQa: is_ready_for_qa,
+    };
+
+    diesel::insert_into(release_schema::table)
+        .values(&release_db)
+        .execute(conn)
+        .expect("Error saving new post");
+}
+
+pub fn get_db_release_by_id(id: i32) -> Result<NewRelease, ()> {
+    let connection = &mut establish_connection();
+
+    let release_db = release_schema::table
+        .filter(release_schema::ID.eq(id))
+        .first::<release>(connection)
+        .unwrap();
+
+    let data = NewRelease {
+        Name: release_db.Name,
+        ReleaseDate: release_db.ReleaseDate,
+        IsOffCycle: release_db.IsOffCycle,
+        ReleaseStatusID: release_db.ReleaseStatusID,
+        DowntimeNotes: release_db.DowntimeNotes,
+        ReleaseCommitDate: release_db.ReleaseCommitDate,
+        RegressionQueryLink: release_db.RegressionQueryLink,
+        Description: release_db.Description,
+        ChangeControlNumber: release_db.ChangeControlNumber,
+        TotalWorkItemsTaggedForRelease: release_db.TotalWorkItemsTaggedForRelease,
+        IsReadyForQa: release_db.IsReadyForQa,
+    };
+    Ok(data)
+}
+
+pub fn update_db_release(
+    conn: &mut SqliteConnection,
+    id: i32,
+    name: String,
+    release_date: NaiveDateTime,
+    is_off_cycle: Option<bool>,
+    release_status_id: Option<i32>,
+    downtime_notes: Option<String>,
+    release_commit_date: String,
+    regression_query_link: Option<String>,
+    description: Option<String>,
+    change_control_number: Option<String>,
+    total_work_items_tagged_for_release: Option<i32>,
+    is_ready_for_qa: Option<bool>,
+) {
+    let release_db = NewRelease {
+        Name: name,
+        ReleaseDate: release_date,
+        IsOffCycle: is_off_cycle,
+        ReleaseStatusID: release_status_id,
+        DowntimeNotes: downtime_notes,
+        ReleaseCommitDate: release_commit_date,
+        RegressionQueryLink: regression_query_link,
+        Description: description,
+        ChangeControlNumber: change_control_number,
+        TotalWorkItemsTaggedForRelease: total_work_items_tagged_for_release,
+        IsReadyForQa: is_ready_for_qa,
+    };
+
+    diesel::update(release_schema::table.find(id))
+        .set((
+            release_schema::Name.eq(release_db.Name),
+            release_schema::ReleaseDate.eq(release_db.ReleaseDate),
+            release_schema::IsOffCycle.eq(release_db.IsOffCycle),
+            release_schema::ReleaseStatusID.eq(release_db.ReleaseStatusID),
+            release_schema::DowntimeNotes.eq(release_db.DowntimeNotes),
+            release_schema::ReleaseCommitDate.eq(release_db.ReleaseCommitDate),
+            release_schema::RegressionQueryLink.eq(release_db.RegressionQueryLink),
+            release_schema::Description.eq(release_db.Description),
+            release_schema::ChangeControlNumber.eq(release_db.ChangeControlNumber),
+            release_schema::TotalWorkItemsTaggedForRelease
+                .eq(release_db.TotalWorkItemsTaggedForRelease),
+            release_schema::IsReadyForQa.eq(release_db.IsReadyForQa),
+        ))
+        .execute(conn)
+        .expect("Error saving new post");
+}
+
+pub fn delete_db_release(conn: &mut SqliteConnection, id: i32) {
+    diesel::delete(release_schema::table.find(id))
         .execute(conn)
         .expect("Error saving new post");
 }
