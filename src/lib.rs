@@ -240,12 +240,12 @@ fn check_for_existing_application_user_release_approval_type_ids<'a>(
             let approval_id = release_approval_type_id_db.ReleaseApprovalTypeID;
             release_approval_type_ids.push(approval_id);
         }
-        println!("{:#?}", release_approval_type_ids);
         let unique: HashSet<i32> = release_approval_type_ids.drain(..).collect();
         let v_unique: Vec<i32> = unique.into_iter().collect();
         let final_convert: Vec<&i32> = v_unique.iter().map(|x| x).collect();
         detect_duplicate_release_approval_type_ids(conn, application_user_id, final_convert, all_release_approval_type_ids.clone());
         if v_unique.contains(release_approval_type_id) {
+            //Required print Statement
             println!("Value Exists");
         } else {
             vec_of_needed_release_approval_type_ids.push(release_approval_type_id);
@@ -284,6 +284,7 @@ fn check_for_zero_value(
             }
         }
     } else {
+        //Required print Statement
         println!("Value is 0");
     }
 }

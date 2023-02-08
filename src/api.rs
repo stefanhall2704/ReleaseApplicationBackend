@@ -122,6 +122,7 @@ pub fn update_team_api(id: i32, json: Json<JsonValue>) -> Json<JsonValue> {
 
 #[delete("/api/deleteTeam/<id>", format = "application/json", data = "<json>")]
 pub fn delete_team_api(id: i32, json: Json<JsonValue>) -> Result<std::string::String, ()> {
+    //required print statement
     println!("{}", json.to_string());
     let connection = &mut establish_connection();
     delete_application_team(connection, id);
@@ -220,6 +221,7 @@ pub fn update_user(id: i32, json: Json<JsonValue>) -> Json<JsonValue> {
 
 #[delete("/api/deleteUser/<id>", format = "application/json", data = "<json>")]
 pub fn delete_user(id: i32, json: Json<JsonValue>) -> Result<std::string::String, ()> {
+    //Required print statement
     println!("{}", json.to_string());
     let connection = &mut establish_connection();
     delete_application_user(connection, id);
