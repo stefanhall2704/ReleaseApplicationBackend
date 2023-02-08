@@ -1,3 +1,4 @@
+use chrono::prelude::*;
 use chrono::NaiveDateTime;
 use diesel::connection::Connection;
 use diesel::prelude::*;
@@ -6,6 +7,11 @@ use dotenvy::dotenv;
 use serde_json::Value;
 use std::collections::HashSet;
 use std::env;
+
+use self::models::NewReleaseActivity;
+use self::models::ReleaseActivity as release_activity;
+use self::models::UpdateReleaseActivity;
+use self::schema::ReleaseActivity as release_activity_schema;
 
 use self::models::NewRelease;
 use self::models::Release as release;
@@ -478,6 +484,128 @@ pub fn update_db_release(
 
 pub fn delete_db_release(conn: &mut SqliteConnection, id: i32) {
     diesel::delete(release_schema::table.find(id))
+        .execute(conn)
+        .expect("Error saving new post");
+}
+
+pub fn create_db_release_activity(
+    conn: &mut SqliteConnection,
+    title: String,
+    created_date: Option<NaiveDateTime>,
+    back_out_procedures: Option<String>,
+    justification_and_priority: Option<String>,
+    production_validation: Option<String>,
+    risk: Option<String>,
+    risk_level: Option<String>,
+    priority_level: Option<String>,
+    requires_downtime: String,
+    requires_performance_testing: String,
+    application_team_id: Option<i32>,
+) {
+    let last_modified_date: NaiveDateTime = Local::now().naive_local();
+    // let optional_int = is_active.unwrap();
+    let release_activity_db = NewReleaseActivity {
+        Title: title,
+        CreatedDate: created_date,
+        BackOutProcedures: back_out_procedures,
+        JustificationAndPriority: justification_and_priority,
+        ProductionValidation: production_validation,
+        Risk: risk,
+        RiskLevel: risk_level,
+        PriorityLevel: priority_level,
+        RequiresDowntime: requires_downtime,
+        RequiresPerformanceTesting: requires_performance_testing,
+        ApplicationTeamID: application_team_id,
+        LastModifiedDate: Some(last_modified_date),
+    };
+
+    diesel::insert_into(release_activity_schema::table)
+        .values(&release_activity_db)
+        .execute(conn)
+        .expect("Error saving new post");
+}
+
+pub fn get_db_release_activity_by_id(id: i32) -> Result<NewReleaseActivity, ()> {
+    let connection = &mut establish_connection();
+
+    let release_activity_db = release_activity_schema::table
+        .filter(release_activity_schema::ID.eq(id))
+        .first::<release_activity>(connection)
+        .unwrap();
+
+    let data = NewReleaseActivity {
+        Title: release_activity_db.Title,
+        CreatedDate: release_activity_db.CreatedDate,
+        BackOutProcedures: release_activity_db.BackOutProcedures,
+        JustificationAndPriority: release_activity_db.JustificationAndPriority,
+        ProductionValidation: release_activity_db.ProductionValidation,
+        Risk: release_activity_db.Risk,
+        RiskLevel: release_activity_db.RiskLevel,
+        PriorityLevel: release_activity_db.PriorityLevel,
+        RequiresDowntime: release_activity_db.RequiresDowntime,
+        RequiresPerformanceTesting: release_activity_db.RequiresPerformanceTesting,
+        ApplicationTeamID: release_activity_db.ApplicationTeamID,
+        LastModifiedDate: release_activity_db.LastModifiedDate,
+    };
+    Ok(data)
+}
+
+pub fn update_db_release_activity(
+    conn: &mut SqliteConnection,
+    id: i32,
+    title: String,
+    back_out_procedures: Option<String>,
+    justification_and_priority: Option<String>,
+    production_validation: Option<String>,
+    risk: Option<String>,
+    risk_level: Option<String>,
+    priority_level: Option<String>,
+    requires_downtime: String,
+    requires_performance_testing: String,
+    application_team_id: Option<i32>,
+    release_id: Option<i32>,
+) {
+    let last_modified_date: NaiveDateTime = Local::now().naive_local();
+
+    let release_activity_db = UpdateReleaseActivity {
+        Title: title,
+        ReleaseID: release_id,
+        BackOutProcedures: back_out_procedures,
+        JustificationAndPriority: justification_and_priority,
+        ProductionValidation: production_validation,
+        Risk: risk,
+        RiskLevel: risk_level,
+        PriorityLevel: priority_level,
+        RequiresDowntime: requires_downtime,
+        RequiresPerformanceTesting: requires_performance_testing,
+        ApplicationTeamID: application_team_id,
+        LastModifiedDate: Some(last_modified_date),
+    };
+
+    diesel::update(release_activity_schema::table.find(id))
+        .set((
+            release_activity_schema::Title.eq(release_activity_db.Title),
+            release_activity_schema::ReleaseID.eq(release_activity_db.ReleaseID),
+            release_activity_schema::BackOutProcedures.eq(release_activity_db.BackOutProcedures),
+            release_activity_schema::JustificationAndPriority
+                .eq(release_activity_db.JustificationAndPriority),
+            release_activity_schema::ProductionValidation
+                .eq(release_activity_db.ProductionValidation),
+            release_activity_schema::Risk.eq(release_activity_db.Risk),
+            release_activity_schema::RiskLevel.eq(release_activity_db.RiskLevel),
+            release_activity_schema::PriorityLevel.eq(release_activity_db.PriorityLevel),
+            release_activity_schema::RequiresDowntime.eq(release_activity_db.RequiresDowntime),
+            release_activity_schema::RequiresPerformanceTesting
+                .eq(release_activity_db.RequiresPerformanceTesting),
+            release_activity_schema::ApplicationTeamID.eq(release_activity_db.ApplicationTeamID),
+            release_activity_schema::LastModifiedDate.eq(last_modified_date),
+        ))
+        .execute(conn)
+        .expect("Error saving new post");
+}
+
+pub fn delete_db_release_activity(conn: &mut SqliteConnection, id: i32) {
+    diesel::delete(release_activity_schema::table.find(id))
         .execute(conn)
         .expect("Error saving new post");
 }

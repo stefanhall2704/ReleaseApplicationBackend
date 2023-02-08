@@ -1,4 +1,5 @@
 #![allow(non_snake_case)]
+use chrono::prelude::*;
 use chrono::NaiveDate;
 use rocket::{delete, get, post};
 use std::result::Result;
@@ -298,6 +299,126 @@ pub fn delete_release(id: i32, json: Json<JsonValue>) -> Result<std::string::Str
     println!("{}", json.to_string());
     let connection = &mut establish_connection();
     delete_db_release(connection, id);
+    let response = format!("Team deleted in database by id: {}", id);
+    Ok(response)
+}
+
+#[post(
+    "/api/createReleaseActivity",
+    format = "application/json",
+    data = "<json>"
+)]
+pub fn create_release_activity(json: Json<JsonValue>) -> Json<JsonValue> {
+    let connection = &mut establish_connection();
+
+    let data_string = json.to_string();
+    let data: &str = &data_string;
+    let v: Value = serde_json::from_str(data).unwrap();
+
+    let title = v["title"].as_str().unwrap().to_owned();
+    let created_date: NaiveDateTime = Local::now().naive_local();
+    let back_out_procedures = v["back_out_procedures"].as_str().unwrap().to_owned();
+    let justification_and_priority = v["justification_and_priority"].as_str().unwrap().to_owned();
+    let production_validation = v["production_validation"].as_str().unwrap().to_owned();
+    let risk = v["risk"].as_str().unwrap().to_owned();
+    let risk_level = v["risk_level"].as_str().unwrap().to_owned();
+    let priority_level = v["priority_level"].as_str().unwrap().to_owned();
+    let requires_downtime = v["requires_downtime"].as_str().unwrap().to_owned();
+    let requires_performance_testing = v["requires_performance_testing"]
+        .as_str()
+        .unwrap()
+        .to_owned();
+    let application_team_id: i32 = v["application_team_id"].as_i64().unwrap() as i32;
+    create_db_release_activity(
+        connection,
+        title,
+        Some(created_date),
+        Some(back_out_procedures),
+        Some(justification_and_priority),
+        Some(production_validation),
+        Some(risk),
+        Some(risk_level),
+        Some(priority_level),
+        requires_downtime,
+        requires_performance_testing,
+        Some(application_team_id),
+    );
+
+    let response = json!({
+        "received": json.into_inner(),
+        "message": format!("Team created in database")
+    });
+
+    Json(response)
+}
+
+#[get("/api/getReleaseActivity/<id>")]
+pub fn get_release_activity(id: i32) -> Result<std::string::String, ()> {
+    let release = get_db_release_activity_by_id(id).unwrap();
+    let user_json = to_string(&release).unwrap();
+    Ok(user_json)
+}
+
+#[post(
+    "/api/updateReleaseActivity/<id>",
+    format = "application/json",
+    data = "<json>"
+)]
+pub fn update_release_activity(id: i32, json: Json<JsonValue>) -> Json<JsonValue> {
+    let connection = &mut establish_connection();
+
+    let data_string = json.to_string();
+    let data: &str = &data_string;
+    let v: Value = serde_json::from_str(data).unwrap();
+
+    let title = v["title"].as_str().unwrap().to_owned();
+    let release_id: i32 = v["release_id"].as_i64().unwrap() as i32;
+    let back_out_procedures = v["back_out_procedures"].as_str().unwrap().to_owned();
+    let justification_and_priority = v["justification_and_priority"].as_str().unwrap().to_owned();
+    let production_validation = v["production_validation"].as_str().unwrap().to_owned();
+    let risk = v["risk"].as_str().unwrap().to_owned();
+    let risk_level = v["risk_level"].as_str().unwrap().to_owned();
+    let priority_level = v["priority_level"].as_str().unwrap().to_owned();
+    let requires_downtime = v["requires_downtime"].as_str().unwrap().to_owned();
+    let requires_performance_testing = v["requires_performance_testing"]
+        .as_str()
+        .unwrap()
+        .to_owned();
+    let application_team_id: i32 = v["application_team_id"].as_i64().unwrap() as i32;
+    update_db_release_activity(
+        connection,
+        id,
+        title,
+        Some(back_out_procedures),
+        Some(justification_and_priority),
+        Some(production_validation),
+        Some(risk),
+        Some(risk_level),
+        Some(priority_level),
+        requires_downtime,
+        requires_performance_testing,
+        Some(application_team_id),
+        Some(release_id),
+    );
+
+    let response = json!({
+        "received": json.into_inner(),
+        "message": format!("Team updated in database")
+    });
+
+    Json(response)
+}
+
+#[delete(
+    "/api/deleteReleaseActivity/<id>",
+    format = "application/json",
+    data = "<json>"
+)]
+pub fn delete_release_activity(id: i32, json: Json<JsonValue>) -> Result<std::string::String, ()> {
+    //required print statement
+    println!("{}", json.to_string());
+    let connection = &mut establish_connection();
+    delete_db_release_activity(connection, id);
     let response = format!("Team deleted in database by id: {}", id);
     Ok(response)
 }
