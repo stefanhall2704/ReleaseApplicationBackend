@@ -802,10 +802,7 @@ pub struct ReleaseActivity {
 #[diesel(table_name=release_activity)]
 pub struct NewReleaseActivity {
     pub Title: String,
-    pub ReleaseID: Option<i32>,
-    pub CreatedBy: Option<String>,
     pub CreatedDate: Option<NaiveDateTime>,
-    pub IsCompliant: Option<bool>,
     pub BackOutProcedures: Option<String>,
     pub JustificationAndPriority: Option<String>,
     pub ProductionValidation: Option<String>,
@@ -815,12 +812,24 @@ pub struct NewReleaseActivity {
     pub RequiresDowntime: String,
     pub RequiresPerformanceTesting: String,
     pub ApplicationTeamID: Option<i32>,
-    pub LastModifiedBy: Option<String>,
     pub LastModifiedDate: Option<NaiveDateTime>,
-    pub ChangeManagementID: Option<String>,
-    pub ExceptionReason: Option<String>,
-    pub ExceptionGranted: Option<bool>,
-    pub JiraWorkItems: Option<String>,
+}
+
+#[derive(Insertable, Serialize)]
+#[diesel(table_name=release_activity)]
+pub struct UpdateReleaseActivity {
+    pub Title: String,
+    pub ReleaseID: Option<i32>,
+    pub BackOutProcedures: Option<String>,
+    pub JustificationAndPriority: Option<String>,
+    pub ProductionValidation: Option<String>,
+    pub Risk: Option<String>,
+    pub RiskLevel: Option<String>,
+    pub PriorityLevel: Option<String>,
+    pub RequiresDowntime: String,
+    pub RequiresPerformanceTesting: String,
+    pub ApplicationTeamID: Option<i32>,
+    pub LastModifiedDate: Option<NaiveDateTime>,
 }
 //==============================================================================================
 #[derive(Queryable)]
