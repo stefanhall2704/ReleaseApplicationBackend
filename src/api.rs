@@ -11,52 +11,6 @@ use rocket_contrib::json::{Json, JsonValue};
 use serde_json::{to_string, Value};
 use test_rust::*;
 
-#[get("/api/getFeatureComplianceById/<id>")]
-pub fn get_feature_compliance(id: i32) -> Result<std::string::String, ()> {
-    let feature_compliance = get_feature_compliance_by_id(id).unwrap();
-    let user_json = to_string(&feature_compliance).unwrap();
-    Ok(user_json)
-}
-
-#[post(
-    "/api/createFeatureCompliance",
-    format = "application/json",
-    data = "<json>"
-)]
-pub fn create_feature_compliance(json: Json<JsonValue>) -> Json<JsonValue> {
-    let connection = &mut establish_connection();
-
-    let data_string = json.to_string();
-    let data: &str = &data_string;
-    let v: Value = serde_json::from_str(data).unwrap();
-
-    let feature_id: i32 = v["feature_id"].as_i64().unwrap() as i32;
-    let release_name = v["release_name"].as_str().unwrap().to_owned();
-    let is_compliant = v["is_compliant"].is_boolean();
-
-    let number_non_compliant_children: i32 =
-        v["number_non_compliant_children"].as_i64().unwrap() as i32;
-
-    let last_checked_date = NaiveDate::from_ymd_opt(2016, 7, 8)
-        .unwrap()
-        .and_hms_opt(9, 10, 11)
-        .unwrap();
-    create_vsts_feature_compliance(
-        connection,
-        feature_id,
-        (release_name).to_string(),
-        is_compliant,
-        number_non_compliant_children,
-        last_checked_date,
-    );
-
-    let response = json!({
-        "received": json.into_inner(),
-        "message": format!("Release added to Database: {release_name}")
-    });
-
-    Json(response)
-}
 
 //Team API's
 #[post("/api/createTeam", format = "application/json", data = "<json>")]
@@ -71,7 +25,7 @@ pub fn create_team(json: Json<JsonValue>) -> Json<JsonValue> {
     let is_active: bool = v["is_active"].as_bool().unwrap();
     let source_control_team_id = v["source_control_team_id"].as_str().unwrap().to_owned();
 
-    create_application_team(
+    create_db_team(
         connection,
         name,
         Some(is_active),
@@ -88,7 +42,7 @@ pub fn create_team(json: Json<JsonValue>) -> Json<JsonValue> {
 
 #[get("/api/getTeam/<id>")]
 pub fn get_application_team(id: i32) -> Result<std::string::String, ()> {
-    let application_team = get_application_team_by_id(id).unwrap();
+    let application_team = get_db_team_by_id(id).unwrap();
     let user_json = to_string(&application_team).unwrap();
     Ok(user_json)
 }
@@ -104,7 +58,7 @@ pub fn update_team_api(id: i32, json: Json<JsonValue>) -> Json<JsonValue> {
     let name = v["name"].as_str().unwrap().to_owned();
     let is_active: bool = v["is_active"].as_bool().unwrap();
     let source_control_team_id = v["source_control_team_id"].as_str().unwrap().to_owned();
-    update_application_team(
+    update_db_team(
         connection,
         id,
         name,
@@ -125,7 +79,7 @@ pub fn delete_team_api(id: i32, json: Json<JsonValue>) -> Result<std::string::St
     //required print statement
     println!("{}", json.to_string());
     let connection = &mut establish_connection();
-    delete_application_team(connection, id);
+    delete_db_team(connection, id);
     let response = format!("Team deleted in database by id: {}", id);
     Ok(response)
 }
@@ -149,7 +103,7 @@ pub fn create_user(json: Json<JsonValue>) -> Json<JsonValue> {
     let is_active: i32 = v["application_team_id"].as_i64().unwrap() as i32;
     let application_team_id: i32 = v["is_active"].as_i64().unwrap() as i32;
 
-    create_application_user(
+    create_db_user(
         connection,
         first,
         last,
@@ -171,8 +125,8 @@ pub fn create_user(json: Json<JsonValue>) -> Json<JsonValue> {
 }
 
 #[get("/api/getUser/<id>")]
-pub fn get_application_user(id: i32) -> Result<std::string::String, ()> {
-    let application_user = get_user_team_by_id(id).unwrap();
+pub fn get_user(id: i32) -> Result<std::string::String, ()> {
+    let application_user = get_db_user_by_id(id).unwrap();
     let user_json = to_string(&application_user).unwrap();
     Ok(user_json)
 }
@@ -197,7 +151,7 @@ pub fn update_user(id: i32, json: Json<JsonValue>) -> Json<JsonValue> {
     let release_approval_type_ids = v["release_approval_type_ids"].as_array().unwrap();
 
     add_release_approval_type(connection, id, release_approval_type_ids);
-    update_application_user(
+    update_db_user(
         connection,
         id,
         first,
@@ -224,7 +178,7 @@ pub fn delete_user(id: i32, json: Json<JsonValue>) -> Result<std::string::String
     //Required print statement
     println!("{}", json.to_string());
     let connection = &mut establish_connection();
-    delete_application_user(connection, id);
+    delete_db_user(connection, id);
     let response = format!("User deleted in database by id: {}", id);
     Ok(response)
 }
