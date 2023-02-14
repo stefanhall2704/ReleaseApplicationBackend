@@ -844,13 +844,27 @@ pub fn delete_db_release_activity_related_task_by_task_id(conn: &mut SqliteConne
     .expect("Error saving new post");
 }
 
+fn delete_release_activity_tasks_by_activity_id(conn: &mut SqliteConnection, release_activity_id: i32) {
+    let release_activity_tasks =
+        get_release_activity_tasks_by_release_activity_id(release_activity_id);
+    if let Ok(release_activity_task) = release_activity_tasks {
+        for task in release_activity_task {
+            let release_activity_task_id = task.ID;
+            delete_db_release_activity_task(conn, release_activity_task_id);
+        }
+    }
+}
+
 pub fn delete_db_release_activity_related_task_by_release_activity_id(
     conn: &mut SqliteConnection,
-    release_activity_task_id: i32,
+    release_activity_id: i32,
 ) {
-    diesel::delete(release_activity_related_task_schema::table.filter(
-        release_activity_related_task_schema::ReleaseActivityID.eq(release_activity_task_id),
-    ))
+    delete_release_activity_tasks_by_activity_id(conn, release_activity_id);
+    diesel::delete(
+        release_activity_related_task_schema::table.filter(
+            release_activity_related_task_schema::ReleaseActivityID.eq(release_activity_id),
+        ),
+    )
     .execute(conn)
     .expect("Error saving new post");
 }
