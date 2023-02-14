@@ -8,6 +8,14 @@ use serde_json::Value;
 use std::collections::HashSet;
 use std::env;
 
+use self::models::NewReleaseActivityRelatedTask;
+use self::models::ReleaseActivityRelatedTask as release_activity_related_task;
+use self::schema::ReleaseActivityRelatedTask as release_activity_related_task_schema;
+
+use self::models::NewReleaseActivityTask;
+use self::models::ReleaseActivityTask as release_activity_task;
+use self::schema::ReleaseActivityTask as release_activity_task_schema;
+
 use self::models::NewReleaseActivity;
 use self::models::ReleaseActivity as release_activity;
 use self::models::UpdateReleaseActivity;
@@ -47,7 +55,6 @@ pub fn create_db_team(
     is_active: Option<bool>,
     source_control_team_id: Option<String>,
 ) {
-    // let optional_int = is_active.unwrap();
     let application_team = NewApplicationTeam {
         Name: name,
         IsActive: is_active,
@@ -389,7 +396,6 @@ pub fn create_db_release(
     total_work_items_tagged_for_release: Option<i32>,
     is_ready_for_qa: Option<bool>,
 ) {
-    // let optional_int = is_active.unwrap();
     let release_db = NewRelease {
         Name: name,
         ReleaseDate: release_date,
@@ -503,7 +509,6 @@ pub fn create_db_release_activity(
     application_team_id: Option<i32>,
 ) {
     let last_modified_date: NaiveDateTime = Local::now().naive_local();
-    // let optional_int = is_active.unwrap();
     let release_activity_db = NewReleaseActivity {
         Title: title,
         CreatedDate: created_date,
@@ -608,4 +613,244 @@ pub fn delete_db_release_activity(conn: &mut SqliteConnection, id: i32) {
     diesel::delete(release_activity_schema::table.find(id))
         .execute(conn)
         .expect("Error saving new post");
+}
+
+pub fn create_db_release_activity_related_task(
+    conn: &mut SqliteConnection,
+    release_activity_id: i32,
+    release_activity_task_id: i32,
+    octopus_project_selected_version: Option<String>,
+) {
+    let release_activity_related_task = NewReleaseActivityRelatedTask {
+        ReleaseActivityID: release_activity_id,
+        ReleaseActivityTaskID: release_activity_task_id,
+        OctopusProjectSelectedVersion: octopus_project_selected_version,
+    };
+    diesel::insert_into(release_activity_related_task_schema::table)
+        .values(&release_activity_related_task)
+        .execute(conn)
+        .expect("Error saving new post");
+}
+
+pub fn get_db_release_activity_task_by_title(
+    title: Option<String>,
+) -> Result<release_activity_task, ()> {
+    let connection = &mut establish_connection();
+
+    let release_activity_task = release_activity_task_schema::table
+        .filter(release_activity_task_schema::Title.eq(title))
+        .first::<release_activity_task>(connection)
+        .unwrap();
+    Ok(release_activity_task)
+}
+
+pub fn create_db_release_activity_task(
+    conn: &mut SqliteConnection,
+    release_activity_id: i32,
+    title: Option<String>,
+    stage_category_id: Option<i32>,
+    deployment_instructions: Option<String>,
+    octopus_project_id: Option<i32>,
+    target_environment_id: Option<i32>,
+    is_hidden: Option<bool>,
+    stage_status_id: Option<i32>,
+    prod_user_id: Option<i32>,
+    stage_user_id: Option<i32>,
+    prod_status_id: Option<i32>,
+    stage_sort_order: Option<i32>,
+    prod_sort_order: Option<i32>,
+    prod_category_id: Option<i32>,
+    canonical_order: Option<i32>,
+    last_modified_by: Option<String>,
+    last_modified_date_time: Option<NaiveDateTime>,
+    dependent_task_id: Option<i32>,
+    octopus_project_selected_version: Option<String>,
+) {
+    let title_clone = title.clone();
+    let clone_octopus_project_selected_version = octopus_project_selected_version.clone();
+    let release_activity_task_db = NewReleaseActivityTask {
+        Title: title,
+        StageCategoryID: stage_category_id,
+        DeploymentInstructions: deployment_instructions,
+        OctopusProjectID: octopus_project_id,
+        TargetEnvironmentID: target_environment_id,
+        IsHidden: is_hidden,
+        StageStatusID: stage_status_id,
+        ProdUserID: prod_user_id,
+        StageUserID: stage_user_id,
+        ProdStatusID: prod_status_id,
+        StageSortOrder: stage_sort_order,
+        ProdSortOrder: prod_sort_order,
+        ProdCategoryID: prod_category_id,
+        CanonicalOrder: canonical_order,
+        LastModifiedBy: last_modified_by,
+        LastModifiedDateTime: last_modified_date_time,
+        DependentTaskID: dependent_task_id,
+        OctopusProjectSelectedVersion: octopus_project_selected_version,
+    };
+
+    diesel::insert_into(release_activity_task_schema::table)
+        .values(&release_activity_task_db)
+        .execute(conn)
+        .expect("Error saving new post");
+
+    let release_activity_task_by_title =
+        get_db_release_activity_task_by_title(title_clone).unwrap();
+    let release_activity_task_id = release_activity_task_by_title.ID;
+    println!("{}", release_activity_task_id.to_string());
+
+    create_db_release_activity_related_task(
+        conn,
+        release_activity_id,
+        release_activity_task_id,
+        clone_octopus_project_selected_version,
+    );
+}
+
+pub fn get_release_activity_tasks_by_release_activity_id(
+    release_activity_id: i32,
+) -> Result<Vec<models::ReleaseActivityRelatedTask>, ()> {
+    let connection = &mut establish_connection();
+
+    let release_activity_related_tasks = release_activity_related_task_schema::table
+        .filter(release_activity_related_task_schema::ReleaseActivityID.eq(release_activity_id))
+        .load::<release_activity_related_task>(connection)
+        .unwrap();
+    Ok(release_activity_related_tasks)
+}
+
+pub fn get_db_release_activity_task_by_id(id: i32) -> Result<NewReleaseActivityTask, ()> {
+    let connection = &mut establish_connection();
+
+    let release_activity_task = release_activity_task_schema::table
+        .filter(release_activity_task_schema::ID.eq(id))
+        .first::<release_activity_task>(connection)
+        .unwrap();
+    let release_activity_task_db = NewReleaseActivityTask {
+        Title: release_activity_task.Title,
+        StageCategoryID: release_activity_task.StageCategoryID,
+        DeploymentInstructions: release_activity_task.DeploymentInstructions,
+        OctopusProjectID: release_activity_task.OctopusProjectID,
+        TargetEnvironmentID: release_activity_task.TargetEnvironmentID,
+        IsHidden: release_activity_task.IsHidden,
+        StageStatusID: release_activity_task.StageStatusID,
+        ProdUserID: release_activity_task.ProdUserID,
+        StageUserID: release_activity_task.StageUserID,
+        ProdStatusID: release_activity_task.ProdStatusID,
+        StageSortOrder: release_activity_task.StageSortOrder,
+        ProdSortOrder: release_activity_task.ProdSortOrder,
+        ProdCategoryID: release_activity_task.ProdCategoryID,
+        CanonicalOrder: release_activity_task.CanonicalOrder,
+        LastModifiedBy: release_activity_task.LastModifiedBy,
+        LastModifiedDateTime: release_activity_task.LastModifiedDateTime,
+        DependentTaskID: release_activity_task.DependentTaskID,
+        OctopusProjectSelectedVersion: release_activity_task.OctopusProjectSelectedVersion,
+    };
+
+    Ok(release_activity_task_db)
+}
+
+pub fn update_db_release_activity_task(
+    conn: &mut SqliteConnection,
+    id: i32,
+    title: Option<String>,
+    stage_category_id: Option<i32>,
+    deployment_instructions: Option<String>,
+    octopus_project_id: Option<i32>,
+    target_environment_id: Option<i32>,
+    is_hidden: Option<bool>,
+    stage_status_id: Option<i32>,
+    prod_user_id: Option<i32>,
+    stage_user_id: Option<i32>,
+    prod_status_id: Option<i32>,
+    stage_sort_order: Option<i32>,
+    prod_sort_order: Option<i32>,
+    prod_category_id: Option<i32>,
+    canonical_order: Option<i32>,
+    last_modified_by: Option<String>,
+    last_modified_date_time: Option<NaiveDateTime>,
+    dependent_task_id: Option<i32>,
+    octopus_project_selected_version: Option<String>,
+) {
+    let release_activity_task_db = NewReleaseActivityTask {
+        Title: title,
+        StageCategoryID: stage_category_id,
+        DeploymentInstructions: deployment_instructions,
+        OctopusProjectID: octopus_project_id,
+        TargetEnvironmentID: target_environment_id,
+        IsHidden: is_hidden,
+        StageStatusID: stage_status_id,
+        ProdUserID: prod_user_id,
+        StageUserID: stage_user_id,
+        ProdStatusID: prod_status_id,
+        StageSortOrder: stage_sort_order,
+        ProdSortOrder: prod_sort_order,
+        ProdCategoryID: prod_category_id,
+        CanonicalOrder: canonical_order,
+        LastModifiedBy: last_modified_by,
+        LastModifiedDateTime: last_modified_date_time,
+        DependentTaskID: dependent_task_id,
+        OctopusProjectSelectedVersion: octopus_project_selected_version,
+    };
+
+    diesel::update(release_activity_task_schema::table.find(id))
+        .set((
+            release_activity_task_schema::Title.eq(release_activity_task_db.Title),
+            release_activity_task_schema::StageCategoryID
+                .eq(release_activity_task_db.StageCategoryID),
+            release_activity_task_schema::DeploymentInstructions
+                .eq(release_activity_task_db.DeploymentInstructions),
+            release_activity_task_schema::OctopusProjectID
+                .eq(release_activity_task_db.OctopusProjectID),
+            release_activity_task_schema::TargetEnvironmentID
+                .eq(release_activity_task_db.TargetEnvironmentID),
+            release_activity_task_schema::IsHidden.eq(release_activity_task_db.IsHidden),
+            release_activity_task_schema::StageStatusID.eq(release_activity_task_db.StageStatusID),
+            release_activity_task_schema::ProdUserID.eq(release_activity_task_db.ProdUserID),
+            release_activity_task_schema::StageUserID.eq(release_activity_task_db.StageUserID),
+            release_activity_task_schema::ProdStatusID.eq(release_activity_task_db.ProdStatusID),
+            release_activity_task_schema::StageSortOrder
+                .eq(release_activity_task_db.StageSortOrder),
+            release_activity_task_schema::ProdSortOrder.eq(release_activity_task_db.ProdSortOrder),
+            release_activity_task_schema::ProdCategoryID
+                .eq(release_activity_task_db.ProdCategoryID),
+            release_activity_task_schema::CanonicalOrder
+                .eq(release_activity_task_db.CanonicalOrder),
+            release_activity_task_schema::LastModifiedBy
+                .eq(release_activity_task_db.LastModifiedBy),
+            release_activity_task_schema::LastModifiedDateTime
+                .eq(release_activity_task_db.LastModifiedDateTime),
+            release_activity_task_schema::DependentTaskID
+                .eq(release_activity_task_db.DependentTaskID),
+            release_activity_task_schema::OctopusProjectSelectedVersion
+                .eq(release_activity_task_db.OctopusProjectSelectedVersion),
+        ))
+        .execute(conn)
+        .expect("Error saving new post");
+}
+
+pub fn delete_db_release_activity_task(conn: &mut SqliteConnection, id: i32) {
+    diesel::delete(release_activity_task_schema::table.find(id))
+        .execute(conn)
+        .expect("Error saving new post");
+}
+
+pub fn delete_db_release_activity_related_task_by_task_id(conn: &mut SqliteConnection, id: i32) {
+    diesel::delete(
+        release_activity_related_task_schema::table
+            .filter(release_activity_related_task_schema::ReleaseActivityTaskID.eq(id)),
+    )
+    .execute(conn)
+    .expect("Error saving new post");
+}
+
+pub fn delete_db_release_activity_related_task_by_release_activity_id(
+    conn: &mut SqliteConnection,
+    release_activity_task_id: i32,
+) {
+    diesel::delete(release_activity_related_task_schema::table.filter(
+        release_activity_related_task_schema::ReleaseActivityID.eq(release_activity_task_id),
+    ))
+    .execute(conn)
+    .expect("Error saving new post");
 }

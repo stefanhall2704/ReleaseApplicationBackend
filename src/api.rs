@@ -13,7 +13,7 @@ use serde_json::{to_string, Value};
 use test_rust::*;
 
 //Team API's
-#[post("/api/createTeam", format = "application/json", data = "<json>")]
+#[post("/api/team", format = "application/json", data = "<json>")]
 pub fn create_team(json: Json<JsonValue>) -> Json<JsonValue> {
     let connection = &mut establish_connection();
 
@@ -40,14 +40,14 @@ pub fn create_team(json: Json<JsonValue>) -> Json<JsonValue> {
     Json(response)
 }
 
-#[get("/api/getTeam/<id>")]
+#[get("/api/team/<id>")]
 pub fn get_application_team(id: i32) -> Result<std::string::String, ()> {
     let application_team = get_db_team_by_id(id).unwrap();
     let user_json = to_string(&application_team).unwrap();
     Ok(user_json)
 }
 
-#[post("/api/updateTeam/<id>", format = "application/json", data = "<json>")]
+#[post("/api/team/<id>", format = "application/json", data = "<json>")]
 pub fn update_team_api(id: i32, json: Json<JsonValue>) -> Json<JsonValue> {
     let connection = &mut establish_connection();
 
@@ -74,7 +74,7 @@ pub fn update_team_api(id: i32, json: Json<JsonValue>) -> Json<JsonValue> {
     Json(response)
 }
 
-#[delete("/api/deleteTeam/<id>", format = "application/json", data = "<json>")]
+#[delete("/api/team/<id>", format = "application/json", data = "<json>")]
 pub fn delete_team_api(id: i32, json: Json<JsonValue>) -> Result<std::string::String, ()> {
     //required print statement
     println!("{}", json.to_string());
@@ -85,7 +85,7 @@ pub fn delete_team_api(id: i32, json: Json<JsonValue>) -> Result<std::string::St
 }
 
 //User API's
-#[post("/api/createUser", format = "application/json", data = "<json>")]
+#[post("/api/user/create", format = "application/json", data = "<json>")]
 pub fn create_user(json: Json<JsonValue>) -> Json<JsonValue> {
     let connection = &mut establish_connection();
 
@@ -124,14 +124,14 @@ pub fn create_user(json: Json<JsonValue>) -> Json<JsonValue> {
     Json(response)
 }
 
-#[get("/api/getUser/<id>")]
+#[get("/api/user/<id>")]
 pub fn get_user(id: i32) -> Result<std::string::String, ()> {
     let application_user = get_db_user_by_id(id).unwrap();
     let user_json = to_string(&application_user).unwrap();
     Ok(user_json)
 }
 
-#[post("/api/updateUser/<id>", format = "application/json", data = "<json>")]
+#[post("/api/user/<id>", format = "application/json", data = "<json>")]
 pub fn update_user(id: i32, json: Json<JsonValue>) -> Json<JsonValue> {
     let connection = &mut establish_connection();
 
@@ -173,7 +173,7 @@ pub fn update_user(id: i32, json: Json<JsonValue>) -> Json<JsonValue> {
     Json(response)
 }
 
-#[delete("/api/deleteUser/<id>", format = "application/json", data = "<json>")]
+#[delete("/api/user/<id>", format = "application/json", data = "<json>")]
 pub fn delete_user(id: i32, json: Json<JsonValue>) -> Result<std::string::String, ()> {
     //Required print statement
     println!("{}", json.to_string());
@@ -183,7 +183,7 @@ pub fn delete_user(id: i32, json: Json<JsonValue>) -> Result<std::string::String
     Ok(response)
 }
 
-#[post("/api/createRelease", format = "application/json", data = "<json>")]
+#[post("/api/release", format = "application/json", data = "<json>")]
 pub fn create_release(json: Json<JsonValue>) -> Json<JsonValue> {
     let connection = &mut establish_connection();
 
@@ -192,10 +192,7 @@ pub fn create_release(json: Json<JsonValue>) -> Json<JsonValue> {
     let v: Value = serde_json::from_str(data).unwrap();
 
     let name = v["name"].as_str().unwrap().to_owned();
-    let release_date = NaiveDate::from_ymd_opt(2023, 2, 5)
-        .unwrap()
-        .and_hms_opt(9, 10, 11)
-        .unwrap();
+    let release_date: NaiveDateTime = Local::now().naive_local();
     let is_off_cycle = v["is_off_cycle"].as_bool().unwrap();
     let release_status_id: i32 = v["release_status_id"].as_i64().unwrap() as i32;
     let downtime_notes = v["downtime_notes"].as_str().unwrap().to_owned();
@@ -230,18 +227,14 @@ pub fn create_release(json: Json<JsonValue>) -> Json<JsonValue> {
     Json(response)
 }
 
-#[get("/api/getRelease/<id>")]
+#[get("/api/release/<id>")]
 pub fn get_release(id: i32) -> Result<std::string::String, ()> {
     let release = get_db_release_by_id(id).unwrap();
     let user_json = to_string(&release).unwrap();
     Ok(user_json)
 }
 
-#[post(
-    "/api/updateRelease/<id>",
-    format = "application/json",
-    data = "<json>"
-)]
+#[post("/api/release/<id>", format = "application/json", data = "<json>")]
 pub fn update_release(id: i32, json: Json<JsonValue>) -> Json<JsonValue> {
     let connection = &mut establish_connection();
 
@@ -289,11 +282,7 @@ pub fn update_release(id: i32, json: Json<JsonValue>) -> Json<JsonValue> {
     Json(response)
 }
 
-#[delete(
-    "/api/deleteRelease/<id>",
-    format = "application/json",
-    data = "<json>"
-)]
+#[delete("/api/release/<id>", format = "application/json", data = "<json>")]
 pub fn delete_release(id: i32, json: Json<JsonValue>) -> Result<std::string::String, ()> {
     //required print statement
     println!("{}", json.to_string());
@@ -303,11 +292,7 @@ pub fn delete_release(id: i32, json: Json<JsonValue>) -> Result<std::string::Str
     Ok(response)
 }
 
-#[post(
-    "/api/createReleaseActivity",
-    format = "application/json",
-    data = "<json>"
-)]
+#[post("/api/release_activity", format = "application/json", data = "<json>")]
 pub fn create_release_activity(json: Json<JsonValue>) -> Json<JsonValue> {
     let connection = &mut establish_connection();
 
@@ -352,7 +337,7 @@ pub fn create_release_activity(json: Json<JsonValue>) -> Json<JsonValue> {
     Json(response)
 }
 
-#[get("/api/getReleaseActivity/<id>")]
+#[get("/api/release_activity/<id>")]
 pub fn get_release_activity(id: i32) -> Result<std::string::String, ()> {
     let release = get_db_release_activity_by_id(id).unwrap();
     let user_json = to_string(&release).unwrap();
@@ -360,7 +345,7 @@ pub fn get_release_activity(id: i32) -> Result<std::string::String, ()> {
 }
 
 #[post(
-    "/api/updateReleaseActivity/<id>",
+    "/api/release_activity/<id>",
     format = "application/json",
     data = "<json>"
 )]
@@ -410,7 +395,7 @@ pub fn update_release_activity(id: i32, json: Json<JsonValue>) -> Json<JsonValue
 }
 
 #[delete(
-    "/api/deleteReleaseActivity/<id>",
+    "/api/release_activity/<id>",
     format = "application/json",
     data = "<json>"
 )]
@@ -419,6 +404,163 @@ pub fn delete_release_activity(id: i32, json: Json<JsonValue>) -> Result<std::st
     println!("{}", json.to_string());
     let connection = &mut establish_connection();
     delete_db_release_activity(connection, id);
+    delete_db_release_activity_related_task_by_release_activity_id(connection, id);
+    let response = format!("Team deleted in database by id: {}", id);
+    Ok(response)
+}
+
+#[post(
+    "/api/release_activity_task",
+    format = "application/json",
+    data = "<json>"
+)]
+pub fn create_release_activity_task(json: Json<JsonValue>) -> Json<JsonValue> {
+    let connection = &mut establish_connection();
+
+    let data_string = json.to_string();
+    let data: &str = &data_string;
+    let v: Value = serde_json::from_str(data).unwrap();
+
+    let release_activity_id: i32 = v["release_activity_id"].as_i64().unwrap() as i32;
+    let title = v["title"].as_str().unwrap().to_owned();
+    let stage_category_id: i32 = v["stage_category_id"].as_i64().unwrap() as i32;
+    let deployment_instructions = v["deployment_instructions"].as_str().unwrap().to_owned();
+    let octopus_project_id: i32 = v["octopus_project_id"].as_i64().unwrap() as i32;
+    let target_environment_id: i32 = v["target_environment_id"].as_i64().unwrap() as i32;
+    let is_hidden: bool = v["is_hidden"].as_bool().unwrap();
+    let stage_status_id: i32 = v["stage_status_id"].as_i64().unwrap() as i32;
+    let prod_user_id: i32 = v["prod_user_id"].as_i64().unwrap() as i32;
+    let stage_user_id: i32 = v["stage_user_id"].as_i64().unwrap() as i32;
+    let prod_status_id: i32 = v["prod_status_id"].as_i64().unwrap() as i32;
+    let stage_sort_order: i32 = v["stage_sort_order"].as_i64().unwrap() as i32;
+    let prod_sort_order: i32 = v["prod_sort_order"].as_i64().unwrap() as i32;
+    let prod_category_id: i32 = v["prod_category_id"].as_i64().unwrap() as i32;
+    let canonical_order: i32 = v["canonical_order"].as_i64().unwrap() as i32;
+    let last_modified_by: String = v["last_modified_by"].as_str().unwrap().to_owned();
+    let last_modified_date_time: NaiveDateTime = Local::now().naive_local();
+    let dependent_task_id: i32 = v["dependent_task_id"].as_i64().unwrap() as i32;
+    let octopus_project_selected_version: String = v["octopus_project_selected_version"]
+        .as_str()
+        .unwrap()
+        .to_owned();
+
+    create_db_release_activity_task(
+        connection,
+        release_activity_id,
+        Some(title),
+        Some(stage_category_id),
+        Some(deployment_instructions),
+        Some(octopus_project_id),
+        Some(target_environment_id),
+        Some(is_hidden),
+        Some(stage_status_id),
+        Some(prod_user_id),
+        Some(stage_user_id),
+        Some(prod_status_id),
+        Some(stage_sort_order),
+        Some(prod_sort_order),
+        Some(prod_category_id),
+        Some(canonical_order),
+        Some(last_modified_by),
+        Some(last_modified_date_time),
+        Some(dependent_task_id),
+        Some(octopus_project_selected_version),
+    );
+
+    let response = json!({
+        "received": json.into_inner(),
+        "message": format!("Team created in database")
+    });
+
+    Json(response)
+}
+
+#[get("/api/release_activity_task/<id>")]
+pub fn get_release_activity_task(id: i32) -> Result<std::string::String, ()> {
+    let release_activity_task = get_db_release_activity_task_by_id(id).unwrap();
+    let user_json = to_string(&release_activity_task).unwrap();
+    Ok(user_json)
+}
+
+#[post(
+    "/api/update_release_activity_task/<id>",
+    format = "application/json",
+    data = "<json>"
+)]
+pub fn update_release_activity_task(id: i32, json: Json<JsonValue>) -> Json<JsonValue> {
+    let connection = &mut establish_connection();
+
+    let data_string = json.to_string();
+    let data: &str = &data_string;
+    let v: Value = serde_json::from_str(data).unwrap();
+
+    let title = v["title"].as_str().unwrap().to_owned();
+    let stage_category_id: i32 = v["stage_category_id"].as_i64().unwrap() as i32;
+    let deployment_instructions = v["deployment_instructions"].as_str().unwrap().to_owned();
+    let octopus_project_id: i32 = v["octopus_project_id"].as_i64().unwrap() as i32;
+    let target_environment_id: i32 = v["target_environment_id"].as_i64().unwrap() as i32;
+    let is_hidden: bool = v["is_hidden"].as_bool().unwrap();
+    let stage_status_id: i32 = v["stage_status_id"].as_i64().unwrap() as i32;
+    let prod_user_id: i32 = v["prod_user_id"].as_i64().unwrap() as i32;
+    let stage_user_id: i32 = v["stage_user_id"].as_i64().unwrap() as i32;
+    let prod_status_id: i32 = v["prod_status_id"].as_i64().unwrap() as i32;
+    let stage_sort_order: i32 = v["stage_sort_order"].as_i64().unwrap() as i32;
+    let prod_sort_order: i32 = v["prod_sort_order"].as_i64().unwrap() as i32;
+    let prod_category_id: i32 = v["prod_category_id"].as_i64().unwrap() as i32;
+    let canonical_order: i32 = v["canonical_order"].as_i64().unwrap() as i32;
+    let last_modified_by: String = v["last_modified_by"].as_str().unwrap().to_owned();
+    let last_modified_date_time: NaiveDateTime = Local::now().naive_local();
+    let dependent_task_id: i32 = v["dependent_task_id"].as_i64().unwrap() as i32;
+    let octopus_project_selected_version: String = v["octopus_project_selected_version"]
+        .as_str()
+        .unwrap()
+        .to_owned();
+
+    update_db_release_activity_task(
+        connection,
+        id,
+        Some(title),
+        Some(stage_category_id),
+        Some(deployment_instructions),
+        Some(octopus_project_id),
+        Some(target_environment_id),
+        Some(is_hidden),
+        Some(stage_status_id),
+        Some(prod_user_id),
+        Some(stage_user_id),
+        Some(prod_status_id),
+        Some(stage_sort_order),
+        Some(prod_sort_order),
+        Some(prod_category_id),
+        Some(canonical_order),
+        Some(last_modified_by),
+        Some(last_modified_date_time),
+        Some(dependent_task_id),
+        Some(octopus_project_selected_version),
+    );
+
+    let response = json!({
+        "received": json.into_inner(),
+        "message": format!("Team updated in database")
+    });
+
+    Json(response)
+}
+
+#[delete(
+    "/api/release_activity_task/<id>",
+    format = "application/json",
+    data = "<json>"
+)]
+pub fn delete_release_activity_task(
+    id: i32,
+    json: Json<JsonValue>,
+) -> Result<std::string::String, ()> {
+    //required print statement
+    println!("{}", json.to_string());
+    let connection = &mut establish_connection();
+    delete_db_release_activity_task(connection, id);
+    delete_db_release_activity_related_task_by_task_id(connection, id);
     let response = format!("Team deleted in database by id: {}", id);
     Ok(response)
 }
