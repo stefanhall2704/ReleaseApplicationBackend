@@ -13,6 +13,8 @@ fn main() {
         .mount(
             "/",
             routes![
+                delete_release_activity_approval,
+                create_release_activity_approval,
                 update_release_activity_task,
                 delete_release_activity_task,
                 get_release_activity_task,

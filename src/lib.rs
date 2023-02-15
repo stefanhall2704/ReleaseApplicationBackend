@@ -8,6 +8,10 @@ use serde_json::Value;
 use std::collections::HashSet;
 use std::env;
 
+use self::models::NewReleaseActivityApproval;
+use self::models::ReleaseActivityApproval as release_activity_approval;
+use self::schema::ReleaseActivityApproval as release_activity_approval_schema;
+
 use self::models::NewReleaseActivityRelatedTask;
 use self::models::ReleaseActivityRelatedTask as release_activity_related_task;
 use self::schema::ReleaseActivityRelatedTask as release_activity_related_task_schema;
@@ -39,6 +43,25 @@ use self::schema::ApplicationTeam as application_team_schema;
 
 pub mod models;
 pub mod schema;
+
+pub enum ReleaseActivityApprovalTypes {
+    Testing = 1,
+    Regression = 2,
+    Performance = 3,
+    Release = 4,
+}
+
+pub fn match_release_activity_approval_type(approval_match: &str) -> i32 {
+    let approval: i32;
+    match approval_match {
+        "Testing" => approval = ReleaseActivityApprovalTypes::Testing as i32,
+        "Regression" => approval = ReleaseActivityApprovalTypes::Regression as i32,
+        "Performance" => approval = ReleaseActivityApprovalTypes::Performance as i32,
+        "Release" => approval = ReleaseActivityApprovalTypes::Release as i32,
+        _ => approval = -1,
+    }
+    approval
+}
 
 #[allow(non_snake_case)]
 pub fn establish_connection() -> SqliteConnection {
@@ -844,7 +867,10 @@ pub fn delete_db_release_activity_related_task_by_task_id(conn: &mut SqliteConne
     .expect("Error saving new post");
 }
 
-fn delete_release_activity_tasks_by_activity_id(conn: &mut SqliteConnection, release_activity_id: i32) {
+fn delete_release_activity_tasks_by_activity_id(
+    conn: &mut SqliteConnection,
+    release_activity_id: i32,
+) {
     let release_activity_tasks =
         get_release_activity_tasks_by_release_activity_id(release_activity_id);
     if let Ok(release_activity_task) = release_activity_tasks {
@@ -863,6 +889,122 @@ pub fn delete_db_release_activity_related_task_by_release_activity_id(
     diesel::delete(
         release_activity_related_task_schema::table.filter(
             release_activity_related_task_schema::ReleaseActivityID.eq(release_activity_id),
+        ),
+    )
+    .execute(conn)
+    .expect("Error saving new post");
+}
+
+pub fn determine_release_approval(
+    conn: &mut SqliteConnection,
+    release_activity_id: i32,
+    risk_assessment: Option<String>,
+    application_user_id: Option<i32>,
+    created_date: Option<NaiveDateTime>,
+    status: Option<String>,
+    comments: Option<String>,
+) {
+    let required_approvals_for_release_auto_approval = vec![1, 2, 3];
+    let mut existing_approvals_in_release_activity: Vec<i32> = Vec::new();
+    let release_activity_approvals =
+        get_release_activity_approvals_by_release_activity_id(release_activity_id);
+    if let Ok(approvals) = release_activity_approvals {
+        for approval in approvals {
+            let approval_id: Option<i32> = approval.ReleaseApprovalTypeID;
+            match approval_id {
+                Some(value) => {
+                    existing_approvals_in_release_activity.push(value);
+                }
+                None => {
+                    println!("The value is absent");
+                }
+            }
+        }
+    }
+    existing_approvals_in_release_activity.sort();
+    if existing_approvals_in_release_activity == required_approvals_for_release_auto_approval {
+        let release_approval = match_release_activity_approval_type("Release");
+        create_db_release_activity_approval(
+            conn,
+            release_activity_id,
+            Some(release_approval),
+            risk_assessment,
+            application_user_id,
+            created_date,
+            status,
+            comments,
+        );
+    }
+}
+
+pub fn get_release_activity_approvals_by_release_activity_id(
+    release_activity_id: i32,
+) -> Result<Vec<models::ReleaseActivityApproval>, ()> {
+    let connection = &mut establish_connection();
+
+    let release_activity_approval = release_activity_approval_schema::table
+        .filter(release_activity_approval_schema::ReleaseActivityID.eq(release_activity_id))
+        .load::<release_activity_approval>(connection)
+        .unwrap();
+    Ok(release_activity_approval)
+}
+
+pub fn delete_release_activity_approvals_by_release_activity_id(release_activity_id: i32) {
+    let release_activity_approvals =
+        get_release_activity_approvals_by_release_activity_id(release_activity_id);
+    let connection = &mut establish_connection();
+    if let Ok(release_activity_approval) = release_activity_approvals {
+        for approval in release_activity_approval {
+            let approval_id: Option<i32> = approval.ReleaseApprovalTypeID;
+            match approval_id {
+                Some(value) => {
+                    delete_db_release_activity_approval(connection, value, release_activity_id);
+                    println!("The value is {}", value);
+                }
+                None => {
+                    println!("The value is absent");
+                }
+            }
+        }
+    }
+}
+
+pub fn create_db_release_activity_approval(
+    conn: &mut SqliteConnection,
+    release_activity_id: i32,
+    release_approval_type_id: Option<i32>,
+    risk_assessment: Option<String>,
+    application_user_id: Option<i32>,
+    created_date: Option<NaiveDateTime>,
+    status: Option<String>,
+    comments: Option<String>,
+) {
+    let release_activity_approval_db = NewReleaseActivityApproval {
+        ReleaseActivityID: release_activity_id,
+        ReleaseApprovalTypeID: release_approval_type_id,
+        RiskAssessment: risk_assessment,
+        ApplicationUserID: application_user_id,
+        CreatedDate: created_date,
+        Status: status,
+        Comments: comments,
+    };
+
+    diesel::insert_into(release_activity_approval_schema::table)
+        .values(&release_activity_approval_db)
+        .execute(conn)
+        .expect("Error saving new post");
+}
+
+pub fn delete_db_release_activity_approval(
+    conn: &mut SqliteConnection,
+    approval_type_id: i32,
+    release_activity_id: i32,
+) {
+    diesel::delete(
+        release_activity_approval_schema::table.filter(
+            release_activity_approval_schema::ReleaseActivityID
+                .eq(release_activity_id)
+                .and(release_activity_approval_schema::ReleaseApprovalTypeID.eq(approval_type_id)),
         ),
     )
     .execute(conn)
