@@ -684,3 +684,19 @@ pub fn delete_release_related_category(id: i32, json: Json<JsonValue>) -> Json<J
 
     Json(response)
 }
+
+#[get("/api/category/<id>")]
+pub fn get_release_release_related_category(id: i32) -> Result<std::string::String, ()> {
+    let release_related_category = get_db_release_related_category_by_id(id).unwrap();
+    let user_json = to_string(&release_related_category).unwrap();
+    Ok(user_json)
+}
+
+#[get("/api/release_categories/<id>")]
+pub fn get_release_release_related_categories(id: i32) -> Result<std::string::String, ()> {
+    let connection = &mut establish_connection();
+    let release_related_categories = get_db_release_categories(connection, id).unwrap();
+    // let user_json = to_string(&release_related_categories).unwrap();
+    let user_json = serde_json::to_string(&release_related_categories).unwrap();
+    Ok(user_json)
+}

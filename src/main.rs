@@ -13,6 +13,7 @@ fn main() {
         .mount(
             "/",
             routes![
+                get_release_release_related_categories,
                 delete_release_related_category,
                 create_release_related_category,
                 delete_release_activity_approval,

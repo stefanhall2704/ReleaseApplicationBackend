@@ -1057,10 +1057,17 @@ pub fn create_db_release_related_category(
     release_id: i32,
     sort_order: i32,
 ) {
+    let sort_order_number: i32;
+    let new_sort_order = get_next_category_sort_order(release_id).unwrap();
+    if new_sort_order >= 1 {
+        sort_order_number = new_sort_order;
+    } else {
+        sort_order_number = sort_order
+    }
     let data = NewReleaseRelatedCategory {
         Category: category,
         ReleaseID: release_id,
-        SortOrder: sort_order,
+        SortOrder: sort_order_number,
     };
     diesel::insert_into(release_related_category_schema::table)
         .values(&data)

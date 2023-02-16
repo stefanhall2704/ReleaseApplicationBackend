@@ -1134,7 +1134,7 @@ pub struct NewReleaseRelatedApplicationUser {
     pub ApplicationUserID: i32,
 }
 //==============================================================================================
-#[derive(Queryable)]
+#[derive(Queryable, Serialize)]
 pub struct ReleaseRelatedCategory {
     pub ID: i32,
     pub Category: Option<String>,
