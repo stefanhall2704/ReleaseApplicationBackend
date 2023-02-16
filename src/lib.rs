@@ -91,7 +91,7 @@ pub fn create_db_team(
     diesel::insert_into(application_team_schema::table)
         .values(&application_team)
         .execute(conn)
-        .expect("Error saving new post");
+        .expect("Error saving new team");
 }
 
 pub fn get_db_team_by_id(id: i32) -> Result<NewApplicationTeam, ()> {
@@ -131,13 +131,13 @@ pub fn update_db_team(
                 .eq(application_team_db.SourceControlTeamID),
         ))
         .execute(conn)
-        .expect("Error saving new post");
+        .expect("Error updating team");
 }
 
 pub fn delete_db_team(conn: &mut SqliteConnection, id: i32) {
     diesel::delete(application_team_schema::table.find(id))
         .execute(conn)
-        .expect("Error saving new post");
+        .expect("Error deleting team");
 }
 
 pub fn get_user_release_approval_ids_by_user_id(
@@ -171,7 +171,7 @@ fn add_db_user_release_approval_type_id(application_user_id: i32, release_approv
     diesel::insert_into(application_user_release_approval_schema::table)
         .values(&application_user_approval_type)
         .execute(conn)
-        .expect("Error saving new post");
+        .expect("Error saving new user");
 }
 
 fn delete_db_user_release_approval_type_id(
@@ -190,7 +190,7 @@ fn delete_db_user_release_approval_type_id(
         ),
     )
     .execute(conn)
-    .expect("Error saving new post");
+    .expect("Error deleting approval id");
 }
 
 fn delete_unrequired_user_release_approval_type_ids<'a>(
@@ -336,7 +336,7 @@ pub fn create_db_user(
     diesel::insert_into(application_user_schema::table)
         .values(&application_user_db)
         .execute(conn)
-        .expect("Error saving new post");
+        .expect("Error saving new user");
 }
 
 pub fn get_db_user_by_id(id: i32) -> Result<NewApplicationUser, ()> {
@@ -399,13 +399,13 @@ pub fn update_db_user(
             application_user_schema::ApplicationTeamID.eq(application_user_db.ApplicationTeamID),
         ))
         .execute(conn)
-        .expect("Error saving new post");
+        .expect("Error updating post");
 }
 
 pub fn delete_db_user(conn: &mut SqliteConnection, id: i32) {
     diesel::delete(application_user_schema::table.find(id))
         .execute(conn)
-        .expect("Error saving new post");
+        .expect("Error deleting user");
 }
 
 //Releases
@@ -440,7 +440,7 @@ pub fn create_db_release(
     diesel::insert_into(release_schema::table)
         .values(&release_db)
         .execute(conn)
-        .expect("Error saving new post");
+        .expect("Error saving new release");
 }
 
 pub fn get_db_release_by_id(id: i32) -> Result<NewRelease, ()> {
@@ -512,13 +512,13 @@ pub fn update_db_release(
             release_schema::IsReadyForQa.eq(release_db.IsReadyForQa),
         ))
         .execute(conn)
-        .expect("Error saving new post");
+        .expect("Error updating release");
 }
 
 pub fn delete_db_release(conn: &mut SqliteConnection, id: i32) {
     diesel::delete(release_schema::table.find(id))
         .execute(conn)
-        .expect("Error saving new post");
+        .expect("Error deleting release");
 }
 
 pub fn create_db_release_activity(
@@ -554,7 +554,7 @@ pub fn create_db_release_activity(
     diesel::insert_into(release_activity_schema::table)
         .values(&release_activity_db)
         .execute(conn)
-        .expect("Error saving new post");
+        .expect("Error saving new release activity");
 }
 
 pub fn get_db_release_activity_by_id(id: i32) -> Result<NewReleaseActivity, ()> {
@@ -633,13 +633,13 @@ pub fn update_db_release_activity(
             release_activity_schema::LastModifiedDate.eq(last_modified_date),
         ))
         .execute(conn)
-        .expect("Error saving new post");
+        .expect("Error updating release activity");
 }
 
 pub fn delete_db_release_activity(conn: &mut SqliteConnection, id: i32) {
     diesel::delete(release_activity_schema::table.find(id))
         .execute(conn)
-        .expect("Error saving new post");
+        .expect("Error deleting release activity");
 }
 
 pub fn create_db_release_activity_related_task(
@@ -656,7 +656,7 @@ pub fn create_db_release_activity_related_task(
     diesel::insert_into(release_activity_related_task_schema::table)
         .values(&release_activity_related_task)
         .execute(conn)
-        .expect("Error saving new post");
+        .expect("Error saving new release activity related task");
 }
 
 pub fn get_db_release_activity_task_by_title(
@@ -719,7 +719,7 @@ pub fn create_db_release_activity_task(
     diesel::insert_into(release_activity_task_schema::table)
         .values(&release_activity_task_db)
         .execute(conn)
-        .expect("Error saving new post");
+        .expect("Error saving new release activity task");
 
     let release_activity_task_by_title =
         get_db_release_activity_task_by_title(title_clone).unwrap();
@@ -853,13 +853,13 @@ pub fn update_db_release_activity_task(
                 .eq(release_activity_task_db.OctopusProjectSelectedVersion),
         ))
         .execute(conn)
-        .expect("Error saving new post");
+        .expect("Error updating release activity task");
 }
 
 pub fn delete_db_release_activity_task(conn: &mut SqliteConnection, id: i32) {
     diesel::delete(release_activity_task_schema::table.find(id))
         .execute(conn)
-        .expect("Error saving new post");
+        .expect("Error deleting release activity task");
 }
 
 pub fn delete_db_release_activity_related_task_by_task_id(conn: &mut SqliteConnection, id: i32) {
@@ -868,7 +868,7 @@ pub fn delete_db_release_activity_related_task_by_task_id(conn: &mut SqliteConne
             .filter(release_activity_related_task_schema::ReleaseActivityTaskID.eq(id)),
     )
     .execute(conn)
-    .expect("Error saving new post");
+    .expect("Error deleting release activity related task");
 }
 
 fn delete_release_activity_tasks_by_activity_id(
@@ -896,7 +896,7 @@ pub fn delete_db_release_activity_related_task_by_release_activity_id(
         ),
     )
     .execute(conn)
-    .expect("Error saving new post");
+    .expect("Error deleting release activity related task by release activity id");
 }
 
 pub fn determine_release_approval(
@@ -996,7 +996,7 @@ pub fn create_db_release_activity_approval(
     diesel::insert_into(release_activity_approval_schema::table)
         .values(&release_activity_approval_db)
         .execute(conn)
-        .expect("Error saving new post");
+        .expect("Error saving new release activity approval");
 }
 
 pub fn delete_db_release_activity_approval(
@@ -1012,7 +1012,7 @@ pub fn delete_db_release_activity_approval(
         ),
     )
     .execute(conn)
-    .expect("Error saving new post");
+    .expect("Error deleting release activity approval");
 }
 
 pub fn get_db_release_categories(
@@ -1072,14 +1072,14 @@ pub fn create_db_release_related_category(
     diesel::insert_into(release_related_category_schema::table)
         .values(&data)
         .execute(conn)
-        .expect("Error saving new post");
+        .expect("Error saving new release related category");
 }
 
 pub fn delete_db_release_related_category(id: i32) {
     let conn = &mut establish_connection();
     diesel::delete(release_related_category_schema::table.find(id))
         .execute(conn)
-        .expect("Error saving new post");
+        .expect("Error deleting release related category");
 }
 
 pub fn delete_all_db_release_related_categories(release_id: i32) {
@@ -1089,5 +1089,5 @@ pub fn delete_all_db_release_related_categories(release_id: i32) {
             .filter(release_related_category_schema::ReleaseID.eq(release_id)),
     )
     .execute(conn)
-    .expect("Error saving new post");
+    .expect("Error deleting release related categories by release id");
 }

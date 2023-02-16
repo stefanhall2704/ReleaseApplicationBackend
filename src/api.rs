@@ -221,7 +221,7 @@ pub fn create_release(json: Json<JsonValue>) -> Json<JsonValue> {
 
     let response = json!({
         "received": json.into_inner(),
-        "message": format!("Team created in database")
+        "message": format!("Release created in database")
     });
 
     Json(response)
@@ -276,7 +276,7 @@ pub fn update_release(id: i32, json: Json<JsonValue>) -> Json<JsonValue> {
 
     let response = json!({
         "received": json.into_inner(),
-        "message": format!("Team updated in database")
+        "message": format!("Release updated in database")
     });
 
     Json(response)
@@ -289,7 +289,7 @@ pub fn delete_release(id: i32, json: Json<JsonValue>) -> Result<std::string::Str
     let connection = &mut establish_connection();
     delete_db_release(connection, id);
     delete_all_db_release_related_categories(id);
-    let response = format!("Team deleted in database by id: {}", id);
+    let response = format!("Release deleted in database by id: {}", id);
     Ok(response)
 }
 
@@ -332,7 +332,7 @@ pub fn create_release_activity(json: Json<JsonValue>) -> Json<JsonValue> {
 
     let response = json!({
         "received": json.into_inner(),
-        "message": format!("Team created in database")
+        "message": format!("Release Activity created in database")
     });
 
     Json(response)
@@ -389,7 +389,7 @@ pub fn update_release_activity(id: i32, json: Json<JsonValue>) -> Json<JsonValue
 
     let response = json!({
         "received": json.into_inner(),
-        "message": format!("Team updated in database")
+        "message": format!("Release Activity updated in database")
     });
 
     Json(response)
@@ -407,23 +407,23 @@ pub fn delete_release_activity(id: i32, json: Json<JsonValue>) -> Result<std::st
     delete_db_release_activity(connection, id);
     delete_release_activity_approvals_by_release_activity_id(id);
     delete_db_release_activity_related_task_by_release_activity_id(connection, id);
-    let response = format!("Team deleted in database by id: {}", id);
+    let response = format!("Release Activity deleted in database by id: {}", id);
     Ok(response)
 }
 
 #[post(
-    "/api/release_activity_task",
+    "/api/release_activity_task/<release_activity_id>",
     format = "application/json",
     data = "<json>"
 )]
-pub fn create_release_activity_task(json: Json<JsonValue>) -> Json<JsonValue> {
+pub fn create_release_activity_task(release_activity_id: i32, json: Json<JsonValue>) -> Json<JsonValue> {
     let connection = &mut establish_connection();
 
     let data_string = json.to_string();
     let data: &str = &data_string;
     let v: Value = serde_json::from_str(data).unwrap();
 
-    let release_activity_id: i32 = v["release_activity_id"].as_i64().unwrap() as i32;
+    // let release_activity_id: i32 = v["release_activity_id"].as_i64().unwrap() as i32;
     let title = v["title"].as_str().unwrap().to_owned();
     let stage_category_id: i32 = v["stage_category_id"].as_i64().unwrap() as i32;
     let deployment_instructions = v["deployment_instructions"].as_str().unwrap().to_owned();
@@ -471,7 +471,7 @@ pub fn create_release_activity_task(json: Json<JsonValue>) -> Json<JsonValue> {
 
     let response = json!({
         "received": json.into_inner(),
-        "message": format!("Team created in database")
+        "message": format!("Release Activity Task created in database")
     });
 
     Json(response)
@@ -543,7 +543,7 @@ pub fn update_release_activity_task(id: i32, json: Json<JsonValue>) -> Json<Json
 
     let response = json!({
         "received": json.into_inner(),
-        "message": format!("Team updated in database")
+        "message": format!("Release Activity Task updated in database")
     });
 
     Json(response)
@@ -563,7 +563,7 @@ pub fn delete_release_activity_task(
     let connection = &mut establish_connection();
     delete_db_release_activity_task(connection, id);
     delete_db_release_activity_related_task_by_task_id(connection, id);
-    let response = format!("Team deleted in database by id: {}", id);
+    let response = format!("Release Activity Task deleted in database by id: {}", id);
     Ok(response)
 }
 
@@ -615,7 +615,7 @@ pub fn create_release_activity_approval(id: i32, json: Json<JsonValue>) -> Json<
 
     let response = json!({
         "received": json.into_inner(),
-        "message": format!("Team created in database")
+        "message": format!("Release Activity Approval added to the database with {release_activity_approval} approval. ")
     });
 
     Json(response)
@@ -643,7 +643,7 @@ pub fn delete_release_activity_approval(json: Json<JsonValue>) -> Json<JsonValue
 
     let response = json!({
         "received": json.into_inner(),
-        "message": format!("Team created in database")
+        "message": format!("Approval: {release_activity_approval} Deleted in database for Release Activity: {release_activity_id}")
     });
 
     Json(response)
@@ -665,7 +665,7 @@ pub fn create_release_related_category(json: Json<JsonValue>) -> Json<JsonValue>
 
     let response = json!({
         "received": json.into_inner(),
-        "message": format!("Team created in database")
+        "message": format!("Release Category created in database")
     });
 
     Json(response)
@@ -679,7 +679,7 @@ pub fn delete_release_related_category(id: i32, json: Json<JsonValue>) -> Json<J
 
     let response = json!({
         "received": json.into_inner(),
-        "message": format!("Team created in database")
+        "message": format!("Release Category deleted in database")
     });
 
     Json(response)
@@ -696,7 +696,6 @@ pub fn get_release_release_related_category(id: i32) -> Result<std::string::Stri
 pub fn get_release_release_related_categories(id: i32) -> Result<std::string::String, ()> {
     let connection = &mut establish_connection();
     let release_related_categories = get_db_release_categories(connection, id).unwrap();
-    // let user_json = to_string(&release_related_categories).unwrap();
     let user_json = serde_json::to_string(&release_related_categories).unwrap();
     Ok(user_json)
 }
