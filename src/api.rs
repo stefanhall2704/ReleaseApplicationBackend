@@ -288,6 +288,7 @@ pub fn delete_release(id: i32, json: Json<JsonValue>) -> Result<std::string::Str
     println!("{}", json.to_string());
     let connection = &mut establish_connection();
     delete_db_release(connection, id);
+    delete_all_db_release_related_categories(id);
     let response = format!("Team deleted in database by id: {}", id);
     Ok(response)
 }
@@ -639,6 +640,42 @@ pub fn delete_release_activity_approval(json: Json<JsonValue>) -> Json<JsonValue
     let release_approval_type_id = match_release_activity_approval_type(release_activity_approval);
 
     delete_db_release_activity_approval(connection, release_approval_type_id, release_activity_id);
+
+    let response = json!({
+        "received": json.into_inner(),
+        "message": format!("Team created in database")
+    });
+
+    Json(response)
+}
+
+#[post("/api/category", format = "application/json", data = "<json>")]
+pub fn create_release_related_category(json: Json<JsonValue>) -> Json<JsonValue> {
+    let connection = &mut establish_connection();
+
+    let data_string = json.to_string();
+    let data: &str = &data_string;
+    let v: Value = serde_json::from_str(data).unwrap();
+
+    let category = v["category"].as_str().unwrap().to_owned();
+    let release_id: i32 = v["release_id"].as_i64().unwrap() as i32;
+    let sort_order: i32 = v["sort_order"].as_i64().unwrap() as i32;
+
+    create_db_release_related_category(connection, Some(category), release_id, sort_order);
+
+    let response = json!({
+        "received": json.into_inner(),
+        "message": format!("Team created in database")
+    });
+
+    Json(response)
+}
+
+#[delete("/api/category/<id>", format = "application/json", data = "<json>")]
+pub fn delete_release_related_category(id: i32, json: Json<JsonValue>) -> Json<JsonValue> {
+    println!("{}", json.to_string());
+
+    delete_db_release_related_category(id);
 
     let response = json!({
         "received": json.into_inner(),

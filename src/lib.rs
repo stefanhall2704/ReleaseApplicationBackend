@@ -8,6 +8,10 @@ use serde_json::Value;
 use std::collections::HashSet;
 use std::env;
 
+use self::models::NewReleaseRelatedCategory;
+use self::models::ReleaseRelatedCategory as release_related_category;
+use self::schema::ReleaseRelatedCategory as release_related_category_schema;
+
 use self::models::NewReleaseActivityApproval;
 use self::models::ReleaseActivityApproval as release_activity_approval;
 use self::schema::ReleaseActivityApproval as release_activity_approval_schema;
@@ -1006,6 +1010,76 @@ pub fn delete_db_release_activity_approval(
                 .eq(release_activity_id)
                 .and(release_activity_approval_schema::ReleaseApprovalTypeID.eq(approval_type_id)),
         ),
+    )
+    .execute(conn)
+    .expect("Error saving new post");
+}
+
+pub fn get_db_release_categories(
+    conn: &mut SqliteConnection,
+    release_id: i32,
+) -> Result<Vec<models::ReleaseRelatedCategory>, ()> {
+    let release_related_category_db = release_related_category_schema::table
+        .filter(release_related_category_schema::ReleaseID.eq(release_id))
+        .load::<release_related_category>(conn)
+        .unwrap();
+    Ok(release_related_category_db)
+}
+
+pub fn get_db_release_related_category_by_id(id: i32) -> Result<NewReleaseRelatedCategory, ()> {
+    let connection = &mut establish_connection();
+
+    let release_related_category_db = release_related_category_schema::table
+        .filter(release_related_category_schema::ID.eq(id))
+        .first::<release_related_category>(connection)
+        .unwrap();
+
+    let data = NewReleaseRelatedCategory {
+        Category: release_related_category_db.Category,
+        ReleaseID: release_related_category_db.ReleaseID,
+        SortOrder: release_related_category_db.SortOrder,
+    };
+    Ok(data)
+}
+
+pub fn get_next_category_sort_order(release_id: i32) -> Result<i32, ()> {
+    let connection = &mut establish_connection();
+    let release_related_categories = get_db_release_categories(connection, release_id).unwrap();
+    let count_of_release_related_categories: i32 =
+        release_related_categories.len().try_into().unwrap();
+    let new_count = count_of_release_related_categories + 1;
+    Ok(new_count)
+}
+
+pub fn create_db_release_related_category(
+    conn: &mut SqliteConnection,
+    category: Option<String>,
+    release_id: i32,
+    sort_order: i32,
+) {
+    let data = NewReleaseRelatedCategory {
+        Category: category,
+        ReleaseID: release_id,
+        SortOrder: sort_order,
+    };
+    diesel::insert_into(release_related_category_schema::table)
+        .values(&data)
+        .execute(conn)
+        .expect("Error saving new post");
+}
+
+pub fn delete_db_release_related_category(id: i32) {
+    let conn = &mut establish_connection();
+    diesel::delete(release_related_category_schema::table.find(id))
+        .execute(conn)
+        .expect("Error saving new post");
+}
+
+pub fn delete_all_db_release_related_categories(release_id: i32) {
+    let conn = &mut establish_connection();
+    diesel::delete(
+        release_related_category_schema::table
+            .filter(release_related_category_schema::ReleaseID.eq(release_id)),
     )
     .execute(conn)
     .expect("Error saving new post");
