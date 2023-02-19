@@ -5,7 +5,6 @@ use diesel::prelude::*;
 use diesel::sqlite::SqliteConnection;
 use dotenvy::dotenv;
 use serde_json::Value;
-use std::collections::HashSet;
 use std::env;
 
 use self::models::NewReleaseRelatedCategory;
@@ -234,26 +233,24 @@ fn get_needed_user_release_approval_type_ids<'a>(
         get_user_release_approval_ids_by_user_id(application_user_id);
     let mut release_approval_type_ids = Vec::new();
     let mut vec_of_needed_release_approval_type_ids = Vec::new();
-    for release_approval_type_ids_db in release_approval_type_ids_db_one.iter() {
-        for release_approval_type_id_db in release_approval_type_ids_db.iter() {
+
+
+    if let Ok(release_approval_type_ids_db) = release_approval_type_ids_db_one {
+        for release_approval_type_id_db in release_approval_type_ids_db {
             let approval_id = release_approval_type_id_db.ReleaseApprovalTypeID;
             release_approval_type_ids.push(approval_id);
         }
-        let unique: HashSet<i32> = release_approval_type_ids.drain(..).collect();
-        let v_unique: Vec<i32> = unique.into_iter().collect();
-        let final_convert: Vec<&i32> = v_unique.iter().map(|x| x).collect();
+
+        let needed_application_user_release_approval_types: Vec<&i32> = release_approval_type_ids.iter().map(|x| x).collect();
         delete_unrequired_user_release_approval_type_ids(
             conn,
             application_user_id,
-            final_convert,
+            needed_application_user_release_approval_types,
             all_release_approval_type_ids.clone(),
         );
-        if v_unique.contains(release_approval_type_id) {
-            //Required print Statement
-            println!("Value Exists");
-        } else {
+        if !release_approval_type_ids.contains(release_approval_type_id) {
             vec_of_needed_release_approval_type_ids.push(release_approval_type_id);
-        }
+        } 
     }
     Ok(vec_of_needed_release_approval_type_ids)
 }
@@ -280,9 +277,9 @@ fn add_new_user_release_approval_type_ids(
             release_approval_type_ids,
         );
 
-        for approval_ids_db in new_release_approval_type_ids.iter() {
-            for approval_id_db in approval_ids_db.iter() {
-                add_db_user_release_approval_type_id(application_user_id, **approval_id_db);
+        if let Ok(approval_ids_db) = new_release_approval_type_ids {
+            for approval_id_db in approval_ids_db {
+                add_db_user_release_approval_type_id(application_user_id, *approval_id_db);
             }
         }
     } else {
