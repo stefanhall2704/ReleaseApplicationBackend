@@ -2,15 +2,17 @@
 use chrono::prelude::*;
 use chrono::NaiveDate;
 use rocket::{delete, get, post};
+use rocket::{http::ContentType, Data};
+use rocket_contrib::json;
+use rocket_contrib::json::{Json, JsonValue};
+use serde_json::{to_string, Value};
 use std::result::Result;
+use test_rust::*;
+
 extern crate rocket;
 extern crate rocket_contrib;
 extern crate serde;
 extern crate serde_json;
-use rocket_contrib::json;
-use rocket_contrib::json::{Json, JsonValue};
-use serde_json::{to_string, Value};
-use test_rust::*;
 
 //Team API's
 #[post("/api/team", format = "application/json", data = "<json>")]
@@ -416,7 +418,10 @@ pub fn delete_release_activity(id: i32, json: Json<JsonValue>) -> Result<std::st
     format = "application/json",
     data = "<json>"
 )]
-pub fn create_release_activity_task(release_activity_id: i32, json: Json<JsonValue>) -> Json<JsonValue> {
+pub fn create_release_activity_task(
+    release_activity_id: i32,
+    json: Json<JsonValue>,
+) -> Json<JsonValue> {
     let connection = &mut establish_connection();
 
     let data_string = json.to_string();
@@ -698,4 +703,23 @@ pub fn get_release_release_related_categories(id: i32) -> Result<std::string::St
     let release_related_categories = get_db_release_categories(connection, id).unwrap();
     let user_json = serde_json::to_string(&release_related_categories).unwrap();
     Ok(user_json)
+}
+
+#[post("/api/attachment/<id>", format = "application/json", data = "<data>")]
+pub fn read_file_bytes(
+    id: i32,
+    content_type: &ContentType,
+    data: Data,
+) -> Result<Vec<u8>, std::io::Error> {
+    let connection = &mut establish_connection();
+
+    let mut buffer = Vec::new();
+    data.stream_to(&mut buffer)?;
+    let content_type: String = content_type.to_string();
+
+    let filename: String = "Testing".to_string();
+    let file = buffer.clone();
+    create_db_release_activity_task_attachment(connection, id, file, filename, content_type);
+
+    Ok(buffer)
 }

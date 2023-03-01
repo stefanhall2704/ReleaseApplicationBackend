@@ -7,6 +7,10 @@ use dotenvy::dotenv;
 use serde_json::Value;
 use std::env;
 
+use self::models::NewReleaseActivityTaskAttachment;
+// use self::models::ReleaseActivityTaskAttachment as release_activity_task_attachment;
+use self::schema::ReleaseActivityTaskAttachment as release_activity_task_attachment_schema;
+
 use self::models::NewReleaseRelatedCategory;
 use self::models::ReleaseRelatedCategory as release_related_category;
 use self::schema::ReleaseRelatedCategory as release_related_category_schema;
@@ -234,14 +238,14 @@ fn get_needed_user_release_approval_type_ids<'a>(
     let mut release_approval_type_ids = Vec::new();
     let mut vec_of_needed_release_approval_type_ids = Vec::new();
 
-
     if let Ok(release_approval_type_ids_db) = release_approval_type_ids_db_one {
         for release_approval_type_id_db in release_approval_type_ids_db {
             let approval_id = release_approval_type_id_db.ReleaseApprovalTypeID;
             release_approval_type_ids.push(approval_id);
         }
 
-        let needed_application_user_release_approval_types: Vec<&i32> = release_approval_type_ids.iter().map(|x| x).collect();
+        let needed_application_user_release_approval_types: Vec<&i32> =
+            release_approval_type_ids.iter().map(|x| x).collect();
         delete_unrequired_user_release_approval_type_ids(
             conn,
             application_user_id,
@@ -250,7 +254,7 @@ fn get_needed_user_release_approval_type_ids<'a>(
         );
         if !release_approval_type_ids.contains(release_approval_type_id) {
             vec_of_needed_release_approval_type_ids.push(release_approval_type_id);
-        } 
+        }
     }
     Ok(vec_of_needed_release_approval_type_ids)
 }
@@ -1087,4 +1091,64 @@ pub fn delete_all_db_release_related_categories(release_id: i32) {
     )
     .execute(conn)
     .expect("Error deleting release related categories by release id");
+}
+
+// pub fn release_activity_task_attachment(content_type: std::option::Option<std::string::String>, data: Data) {
+
+//     let uuid = RocketUuid::new_v4().to_string();
+//     // let mut file_data: Data = Vec::new();
+//     let mut form_data = NewReleaseActivityTaskAttachment {
+//         ReleaseActivityTaskID: 0,
+//         FileName: Some(String::new()),
+//         ContentType: Some(String::new()),
+//     };
+
+//     // data.stream_to(&mut file_data).unwrap();
+//     // let mut content_disp = Vec::new();
+//     // let bytes = match data.open().take(1024 * 1024).read_to_end(&mut content_disp) {
+//     //     Ok(b) => b,
+//     //     Err(_) => todo!(),
+//     // };
+//     let part = data.files.get("file").ok_or("file field missing");
+//     // let file_name = part.get_file_name().ok_or("filename missing")?;
+//     let file_name = data.files.as_ref().get_file_name().unwrap();
+
+//     // let file_name = &data.files.get_file_name().unwrap();
+
+//     // let filename_start = content_disp.find("filename=").unwrap();
+//     // let filename_end = content_disp
+//     //     .find(';')
+//     //     .unwrap_or_else(|| content_disp.len());
+//     form_data.FileName = file_name;
+//     form_data.ContentType = content_type;
+
+//     let rows = diesel::insert_into(release_activity_task_attachment)
+//         .values((
+//             ID.eq(uuid.clone()),
+//             ReleaseActivityTaskID.eq(form_data.release_activity_task_id),
+//             File.eq(file_data),
+//             FileName.eq(form_data.file_name.clone()),
+//             ContentType.eq(form_data.content_type.clone()),
+//         ))
+//         .execute(conn)
+//         .expect("Error inserting data into database");
+// }
+
+pub fn create_db_release_activity_task_attachment(
+    conn: &mut SqliteConnection,
+    release_activity_id: i32,
+    file: Vec<u8>,
+    file_name: String,
+    content_type: String,
+) {
+    let new_file = NewReleaseActivityTaskAttachment {
+        ReleaseActivityTaskID: release_activity_id,
+        File: Some(file),
+        FileName: Some(file_name),
+        ContentType: Some(content_type),
+    };
+    diesel::insert_into(release_activity_task_attachment_schema::table)
+        .values(&new_file)
+        .execute(conn)
+        .expect("Error inserting data into database");
 }
