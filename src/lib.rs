@@ -6,9 +6,11 @@ use diesel::sqlite::SqliteConnection;
 use dotenvy::dotenv;
 use serde_json::Value;
 use std::env;
+use std::io;
+use std::io::Write;
 
 use self::models::NewReleaseActivityTaskAttachment;
-// use self::models::ReleaseActivityTaskAttachment as release_activity_task_attachment;
+use self::models::ReleaseActivityTaskAttachment as release_activity_task_attachment;
 use self::schema::ReleaseActivityTaskAttachment as release_activity_task_attachment_schema;
 
 use self::models::NewReleaseRelatedCategory;
@@ -1093,47 +1095,6 @@ pub fn delete_all_db_release_related_categories(release_id: i32) {
     .expect("Error deleting release related categories by release id");
 }
 
-// pub fn release_activity_task_attachment(content_type: std::option::Option<std::string::String>, data: Data) {
-
-//     let uuid = RocketUuid::new_v4().to_string();
-//     // let mut file_data: Data = Vec::new();
-//     let mut form_data = NewReleaseActivityTaskAttachment {
-//         ReleaseActivityTaskID: 0,
-//         FileName: Some(String::new()),
-//         ContentType: Some(String::new()),
-//     };
-
-//     // data.stream_to(&mut file_data).unwrap();
-//     // let mut content_disp = Vec::new();
-//     // let bytes = match data.open().take(1024 * 1024).read_to_end(&mut content_disp) {
-//     //     Ok(b) => b,
-//     //     Err(_) => todo!(),
-//     // };
-//     let part = data.files.get("file").ok_or("file field missing");
-//     // let file_name = part.get_file_name().ok_or("filename missing")?;
-//     let file_name = data.files.as_ref().get_file_name().unwrap();
-
-//     // let file_name = &data.files.get_file_name().unwrap();
-
-//     // let filename_start = content_disp.find("filename=").unwrap();
-//     // let filename_end = content_disp
-//     //     .find(';')
-//     //     .unwrap_or_else(|| content_disp.len());
-//     form_data.FileName = file_name;
-//     form_data.ContentType = content_type;
-
-//     let rows = diesel::insert_into(release_activity_task_attachment)
-//         .values((
-//             ID.eq(uuid.clone()),
-//             ReleaseActivityTaskID.eq(form_data.release_activity_task_id),
-//             File.eq(file_data),
-//             FileName.eq(form_data.file_name.clone()),
-//             ContentType.eq(form_data.content_type.clone()),
-//         ))
-//         .execute(conn)
-//         .expect("Error inserting data into database");
-// }
-
 pub fn create_db_release_activity_task_attachment(
     conn: &mut SqliteConnection,
     release_activity_id: i32,
@@ -1151,4 +1112,39 @@ pub fn create_db_release_activity_task_attachment(
         .values(&new_file)
         .execute(conn)
         .expect("Error inserting data into database");
+}
+fn option_vec_to_slice(opt_vec: Option<Vec<u8>>) -> &'static [u8] {
+    match opt_vec {
+        Some(vec) => Box::leak(vec.into_boxed_slice()),
+        None => &[],
+    }
+}
+
+pub fn download_db_file(
+    connection: &mut SqliteConnection,
+    release_activity_task_id: i32,
+) -> io::Result<std::fs::File> {
+    let file_data = release_activity_task_attachment_schema::table
+        .filter(
+            release_activity_task_attachment_schema::ReleaseActivityTaskID
+                .eq(release_activity_task_id),
+        )
+        .first::<release_activity_task_attachment>(connection)
+        .unwrap();
+    let data = file_data.File;
+    let file_name = file_data.FileName.unwrap();
+    let download_dir = match dirs_2::download_dir() {
+        Some(path) => path,
+        None => {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::NotFound,
+                "Download directory not found",
+            ))
+        }
+    };
+    let file_path = download_dir.join(&file_name);
+    let mut file = std::fs::File::create(&file_path)?;
+    let data_ref: &[u8] = option_vec_to_slice(data);
+    file.write_all(data_ref)?;
+    Ok(file)
 }
