@@ -13,6 +13,7 @@ fn main() {
         .mount(
             "/",
             routes![
+                download_file,
                 read_file_bytes,
                 get_release_release_related_categories,
                 delete_release_related_category,

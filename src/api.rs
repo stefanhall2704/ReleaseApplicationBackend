@@ -717,9 +717,16 @@ pub fn read_file_bytes(
     data.stream_to(&mut buffer)?;
     let content_type: String = content_type.to_string();
 
-    let filename: String = "Testing".to_string();
+    let filename: String = "Testing.json".to_string();
     let file = buffer.clone();
     create_db_release_activity_task_attachment(connection, id, file, filename, content_type);
 
     Ok(buffer)
+}
+
+#[get("/api/download/<id>")]
+pub fn download_file(id: i32) -> Result<Result<std::fs::File, std::io::Error>, ()> {
+    let connection = &mut establish_connection();
+    let file_download = download_db_file(connection, id);
+    Ok(file_download)
 }
