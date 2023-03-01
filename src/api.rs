@@ -705,11 +705,12 @@ pub fn get_release_release_related_categories(id: i32) -> Result<std::string::St
     Ok(user_json)
 }
 
-#[post("/api/attachment/<id>", format = "application/json", data = "<data>")]
+#[post("/api/attachment/<id>/<filename>", data = "<data>")]
 pub fn read_file_bytes(
     id: i32,
     content_type: &ContentType,
     data: Data,
+    filename: String
 ) -> Result<Vec<u8>, std::io::Error> {
     let connection = &mut establish_connection();
 
@@ -717,7 +718,7 @@ pub fn read_file_bytes(
     data.stream_to(&mut buffer)?;
     let content_type: String = content_type.to_string();
 
-    let filename: String = "Testing.json".to_string();
+    // let filename: String = "stefans_cert.pdf".to_string();
     let file = buffer.clone();
     create_db_release_activity_task_attachment(connection, id, file, filename, content_type);
 
