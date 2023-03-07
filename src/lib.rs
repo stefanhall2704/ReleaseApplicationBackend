@@ -1120,17 +1120,28 @@ fn option_vec_to_slice(opt_vec: Option<Vec<u8>>) -> &'static [u8] {
     }
 }
 
-pub fn download_db_file(
-    connection: &mut SqliteConnection,
+fn get_db_attachment_by_id(
     release_activity_task_id: i32,
-) -> io::Result<std::fs::File> {
-    let file_data = release_activity_task_attachment_schema::table
+) -> Result<NewReleaseActivityTaskAttachment, ()> {
+    let conn = &mut establish_connection();
+    let data = release_activity_task_attachment_schema::table
         .filter(
             release_activity_task_attachment_schema::ReleaseActivityTaskID
                 .eq(release_activity_task_id),
         )
-        .first::<release_activity_task_attachment>(connection)
+        .first::<release_activity_task_attachment>(conn)
         .unwrap();
+    let db_release_activity_task_attachment = NewReleaseActivityTaskAttachment {
+        ReleaseActivityTaskID: data.ReleaseActivityTaskID,
+        File: data.File,
+        FileName: data.FileName,
+        ContentType: data.ContentType,
+    };
+    Ok(db_release_activity_task_attachment)
+}
+
+pub fn download_db_file(release_activity_task_id: i32) -> io::Result<std::fs::File> {
+    let file_data = get_db_attachment_by_id(release_activity_task_id).unwrap();
     let data = file_data.File;
     let file_name = file_data.FileName.unwrap();
     let download_dir = match dirs_2::download_dir() {

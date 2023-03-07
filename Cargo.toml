@@ -16,9 +16,9 @@ dotenvy = "0.15"
 kv-derive = "1.0.1"
 proc-macro-error = "1.0.4"
 rocket = "0.4.11"
-serde = { version = "1.0", features = ["derive"] }
+serde = { version = "1.0.152", features = ["derive"] }
 serde_derive = "1.0.151"
-serde_json = "1.0"
+serde_json = "1.0.93"
 rocket_contrib = { version = "0.4.11", features = ["json"] }
 cargo-watch = "8.3.0"
 rustc-serialize = "0.3.24"
