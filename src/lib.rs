@@ -8,7 +8,9 @@ use serde_json::Value;
 use std::env;
 use std::io;
 use std::io::Write;
+extern crate termion;
 
+use termion::{color};
 use self::models::NewReleaseActivityTaskAttachment;
 use self::models::ReleaseActivityTaskAttachment as release_activity_task_attachment;
 use self::schema::ReleaseActivityTaskAttachment as release_activity_task_attachment_schema;
@@ -75,7 +77,11 @@ pub fn match_release_activity_approval_type(approval_match: &str) -> i32 {
 #[allow(non_snake_case)]
 pub fn establish_connection() -> SqliteConnection {
     dotenv().ok();
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Generating Datbase URL", color::Fg(color::Blue));
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Creating Database Connection", color::Fg(color::Blue));
     SqliteConnection::establish(&database_url)
         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
 }
@@ -87,12 +93,14 @@ pub fn create_db_team(
     is_active: Option<bool>,
     source_control_team_id: Option<String>,
 ) {
+
     let application_team = NewApplicationTeam {
         Name: name,
         IsActive: is_active,
         SourceControlTeamID: source_control_team_id,
     };
-
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Creating Team", color::Fg(color::Blue));
     diesel::insert_into(application_team_schema::table)
         .values(&application_team)
         .execute(conn)
@@ -101,7 +109,8 @@ pub fn create_db_team(
 
 pub fn get_db_team_by_id(id: i32) -> Result<NewApplicationTeam, ()> {
     let connection = &mut establish_connection();
-
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Retrieving Team By Team ID", color::Fg(color::Blue));
     let application_team_db = application_team_schema::table
         .filter(application_team_schema::ID.eq(id))
         .first::<application_team>(connection)
@@ -127,7 +136,8 @@ pub fn update_db_team(
         IsActive: is_active,
         SourceControlTeamID: source_control_team_id,
     };
-
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Updating Team By Team ID", color::Fg(color::Blue));
     diesel::update(application_team_schema::table.find(id))
         .set((
             application_team_schema::Name.eq(application_team_db.Name),
@@ -140,6 +150,8 @@ pub fn update_db_team(
 }
 
 pub fn delete_db_team(conn: &mut SqliteConnection, id: i32) {
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Deleting Team By Team ID", color::Fg(color::Blue));
     diesel::delete(application_team_schema::table.find(id))
         .execute(conn)
         .expect("Error deleting team");
@@ -149,7 +161,8 @@ pub fn get_user_release_approval_ids_by_user_id(
     id: i32,
 ) -> Result<Vec<NewApplicationUserReleaseApproval>, ()> {
     let connection = &mut establish_connection();
-
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Get User Release Approval ID's by User ID", color::Fg(color::Blue));
     let release_approval_ids = application_user_release_approval_schema::table
         .filter(application_user_release_approval_schema::ApplicationUserID.eq(id))
         .load::<application_user_release_approval>(connection)
@@ -172,7 +185,8 @@ fn add_db_user_release_approval_type_id(application_user_id: i32, release_approv
         ApplicationUserID: application_user_id,
         ReleaseApprovalTypeID: release_approval_type_id,
     };
-
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Add User Release Approval Type ID by User ID", color::Fg(color::Blue));
     diesel::insert_into(application_user_release_approval_schema::table)
         .values(&application_user_approval_type)
         .execute(conn)
@@ -184,6 +198,8 @@ fn delete_db_user_release_approval_type_id(
     user_id: i32,
     release_approval_type_id: i32,
 ) {
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Deleting User Release Approval Type ID by user ID and Release Approval Type ID", color::Fg(color::Blue));
     diesel::delete(
         application_user_release_approval_schema::table.filter(
             application_user_release_approval_schema::ApplicationUserID
@@ -210,6 +226,8 @@ fn delete_unrequired_user_release_approval_type_ids<'a>(
             approval_ids_to_delete.push(approval_id);
         }
     }
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Deleting Release Approval Type IDs that user should not have access to anymore", color::Fg(color::Blue));
     for release_approval_id in approval_ids_to_delete {
         delete_db_user_release_approval_type_id(conn, user_id, *release_approval_id);
     }
@@ -258,6 +276,8 @@ fn get_needed_user_release_approval_type_ids<'a>(
             vec_of_needed_release_approval_type_ids.push(release_approval_type_id);
         }
     }
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Getting User Release Approval Type IDs that are needed to handle", color::Fg(color::Blue));
     Ok(vec_of_needed_release_approval_type_ids)
 }
 
@@ -290,7 +310,8 @@ fn add_new_user_release_approval_type_ids(
         }
     } else {
         //Required print Statement
-        println!("Value is 0");
+        println!("{}Action:", color::Fg(color::Red));
+        println!("{}Value is 0:", color::Fg(color::Blue));
     }
 }
 
@@ -335,7 +356,8 @@ pub fn create_db_user(
         IsActive: is_active,
         ApplicationTeamID: application_team_id,
     };
-
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Creating User", color::Fg(color::Blue));
     diesel::insert_into(application_user_schema::table)
         .values(&application_user_db)
         .execute(conn)
@@ -344,7 +366,8 @@ pub fn create_db_user(
 
 pub fn get_db_user_by_id(id: i32) -> Result<NewApplicationUser, ()> {
     let connection = &mut establish_connection();
-
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Getting user by User ID", color::Fg(color::Blue));
     let application_team_db = application_user_schema::table
         .filter(application_user_schema::ID.eq(id))
         .first::<application_user>(connection)
@@ -387,7 +410,8 @@ pub fn update_db_user(
         IsActive: is_active,
         ApplicationTeamID: application_team_id,
     };
-
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Updating user by user ID", color::Fg(color::Blue));
     diesel::update(application_user_schema::table.find(id))
         .set((
             application_user_schema::First.eq(application_user_db.First),
@@ -406,6 +430,8 @@ pub fn update_db_user(
 }
 
 pub fn delete_db_user(conn: &mut SqliteConnection, id: i32) {
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Deleting user by user ID", color::Fg(color::Blue));
     diesel::delete(application_user_schema::table.find(id))
         .execute(conn)
         .expect("Error deleting user");
@@ -439,7 +465,8 @@ pub fn create_db_release(
         TotalWorkItemsTaggedForRelease: total_work_items_tagged_for_release,
         IsReadyForQa: is_ready_for_qa,
     };
-
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Creating Release", color::Fg(color::Blue));
     diesel::insert_into(release_schema::table)
         .values(&release_db)
         .execute(conn)
@@ -448,7 +475,8 @@ pub fn create_db_release(
 
 pub fn get_db_release_by_id(id: i32) -> Result<NewRelease, ()> {
     let connection = &mut establish_connection();
-
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Getting Release By Relase ID", color::Fg(color::Blue));
     let release_db = release_schema::table
         .filter(release_schema::ID.eq(id))
         .first::<release>(connection)
@@ -498,7 +526,8 @@ pub fn update_db_release(
         TotalWorkItemsTaggedForRelease: total_work_items_tagged_for_release,
         IsReadyForQa: is_ready_for_qa,
     };
-
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Updating Release By Release ID", color::Fg(color::Blue));
     diesel::update(release_schema::table.find(id))
         .set((
             release_schema::Name.eq(release_db.Name),
@@ -519,6 +548,8 @@ pub fn update_db_release(
 }
 
 pub fn delete_db_release(conn: &mut SqliteConnection, id: i32) {
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Deleting Release By Release ID", color::Fg(color::Blue));
     diesel::delete(release_schema::table.find(id))
         .execute(conn)
         .expect("Error deleting release");
@@ -553,7 +584,8 @@ pub fn create_db_release_activity(
         ApplicationTeamID: application_team_id,
         LastModifiedDate: Some(last_modified_date),
     };
-
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Creating Release Activity", color::Fg(color::Blue));
     diesel::insert_into(release_activity_schema::table)
         .values(&release_activity_db)
         .execute(conn)
@@ -562,7 +594,8 @@ pub fn create_db_release_activity(
 
 pub fn get_db_release_activity_by_id(id: i32) -> Result<NewReleaseActivity, ()> {
     let connection = &mut establish_connection();
-
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Getting Release Activity by Release Activity ID", color::Fg(color::Blue));
     let release_activity_db = release_activity_schema::table
         .filter(release_activity_schema::ID.eq(id))
         .first::<release_activity>(connection)
@@ -616,7 +649,8 @@ pub fn update_db_release_activity(
         ApplicationTeamID: application_team_id,
         LastModifiedDate: Some(last_modified_date),
     };
-
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Updating Release Activity By Release Activity ID", color::Fg(color::Blue));
     diesel::update(release_activity_schema::table.find(id))
         .set((
             release_activity_schema::Title.eq(release_activity_db.Title),
@@ -640,6 +674,8 @@ pub fn update_db_release_activity(
 }
 
 pub fn delete_db_release_activity(conn: &mut SqliteConnection, id: i32) {
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Deleting Release Activity By Release Activity ID", color::Fg(color::Blue));
     diesel::delete(release_activity_schema::table.find(id))
         .execute(conn)
         .expect("Error deleting release activity");
@@ -656,6 +692,8 @@ pub fn create_db_release_activity_related_task(
         ReleaseActivityTaskID: release_activity_task_id,
         OctopusProjectSelectedVersion: octopus_project_selected_version,
     };
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Creating Release Activity Related Task", color::Fg(color::Blue));
     diesel::insert_into(release_activity_related_task_schema::table)
         .values(&release_activity_related_task)
         .execute(conn)
@@ -666,7 +704,8 @@ pub fn get_db_release_activity_task_by_title(
     title: Option<String>,
 ) -> Result<release_activity_task, ()> {
     let connection = &mut establish_connection();
-
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Getting Release Activity Task By Release Activity Task Title", color::Fg(color::Blue));
     let release_activity_task = release_activity_task_schema::table
         .filter(release_activity_task_schema::Title.eq(title))
         .first::<release_activity_task>(connection)
@@ -718,7 +757,8 @@ pub fn create_db_release_activity_task(
         DependentTaskID: dependent_task_id,
         OctopusProjectSelectedVersion: octopus_project_selected_version,
     };
-
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Creating Release Activity Task", color::Fg(color::Blue));
     diesel::insert_into(release_activity_task_schema::table)
         .values(&release_activity_task_db)
         .execute(conn)
@@ -741,7 +781,8 @@ pub fn get_release_activity_tasks_by_release_activity_id(
     release_activity_id: i32,
 ) -> Result<Vec<models::ReleaseActivityRelatedTask>, ()> {
     let connection = &mut establish_connection();
-
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Getting Release Activity Task(s) by Release Activity ID", color::Fg(color::Blue));
     let release_activity_related_tasks = release_activity_related_task_schema::table
         .filter(release_activity_related_task_schema::ReleaseActivityID.eq(release_activity_id))
         .load::<release_activity_related_task>(connection)
@@ -751,7 +792,8 @@ pub fn get_release_activity_tasks_by_release_activity_id(
 
 pub fn get_db_release_activity_task_by_id(id: i32) -> Result<NewReleaseActivityTask, ()> {
     let connection = &mut establish_connection();
-
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Getting Release Activity Task by Release Activity Task ID", color::Fg(color::Blue));
     let release_activity_task = release_activity_task_schema::table
         .filter(release_activity_task_schema::ID.eq(id))
         .first::<release_activity_task>(connection)
@@ -822,7 +864,8 @@ pub fn update_db_release_activity_task(
         DependentTaskID: dependent_task_id,
         OctopusProjectSelectedVersion: octopus_project_selected_version,
     };
-
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Updating Release Activity Task by Release Activity Task ID", color::Fg(color::Blue));
     diesel::update(release_activity_task_schema::table.find(id))
         .set((
             release_activity_task_schema::Title.eq(release_activity_task_db.Title),
@@ -860,12 +903,16 @@ pub fn update_db_release_activity_task(
 }
 
 pub fn delete_db_release_activity_task(conn: &mut SqliteConnection, id: i32) {
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Deleting Release Activity Task By Release Activity Task ID", color::Fg(color::Blue));
     diesel::delete(release_activity_task_schema::table.find(id))
         .execute(conn)
         .expect("Error deleting release activity task");
 }
 
 pub fn delete_db_release_activity_related_task_by_task_id(conn: &mut SqliteConnection, id: i32) {
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Deleting Release Activity Related Task by Release Activity Task ID", color::Fg(color::Blue));
     diesel::delete(
         release_activity_related_task_schema::table
             .filter(release_activity_related_task_schema::ReleaseActivityTaskID.eq(id)),
@@ -892,6 +939,8 @@ pub fn delete_db_release_activity_related_task_by_release_activity_id(
     conn: &mut SqliteConnection,
     release_activity_id: i32,
 ) {
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Deleting Release Activity Related Task(s) by Release Activity ID", color::Fg(color::Blue));
     delete_release_activity_tasks_by_activity_id(conn, release_activity_id);
     diesel::delete(
         release_activity_related_task_schema::table.filter(
@@ -931,6 +980,8 @@ pub fn determine_release_approval(
     existing_approvals_in_release_activity.sort();
     if existing_approvals_in_release_activity == required_approvals_for_release_auto_approval {
         let release_approval = match_release_activity_approval_type("Release");
+        println!("{}Action:", color::Fg(color::Red));
+        println!("{}Determining Next Sort Order For Task(s)", color::Fg(color::Blue));
         create_db_release_activity_approval(
             conn,
             release_activity_id,
@@ -948,7 +999,8 @@ pub fn get_release_activity_approvals_by_release_activity_id(
     release_activity_id: i32,
 ) -> Result<Vec<models::ReleaseActivityApproval>, ()> {
     let connection = &mut establish_connection();
-
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Getting Release Activity Approvals by Release Activity ID", color::Fg(color::Blue));
     let release_activity_approval = release_activity_approval_schema::table
         .filter(release_activity_approval_schema::ReleaseActivityID.eq(release_activity_id))
         .load::<release_activity_approval>(connection)
@@ -995,7 +1047,8 @@ pub fn create_db_release_activity_approval(
         Status: status,
         Comments: comments,
     };
-
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Creating Release Activity Approval", color::Fg(color::Blue));
     diesel::insert_into(release_activity_approval_schema::table)
         .values(&release_activity_approval_db)
         .execute(conn)
@@ -1007,6 +1060,8 @@ pub fn delete_db_release_activity_approval(
     approval_type_id: i32,
     release_activity_id: i32,
 ) {
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Deleting Release Activity Approval", color::Fg(color::Blue));
     diesel::delete(
         release_activity_approval_schema::table.filter(
             release_activity_approval_schema::ReleaseActivityID
@@ -1022,6 +1077,8 @@ pub fn get_db_release_categories(
     conn: &mut SqliteConnection,
     release_id: i32,
 ) -> Result<Vec<models::ReleaseRelatedCategory>, ()> {
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Getting Release Categories by Release ID", color::Fg(color::Blue));
     let release_related_category_db = release_related_category_schema::table
         .filter(release_related_category_schema::ReleaseID.eq(release_id))
         .load::<release_related_category>(conn)
@@ -1031,7 +1088,8 @@ pub fn get_db_release_categories(
 
 pub fn get_db_release_related_category_by_id(id: i32) -> Result<NewReleaseRelatedCategory, ()> {
     let connection = &mut establish_connection();
-
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Getting Release Related Category By Release ID", color::Fg(color::Blue));
     let release_related_category_db = release_related_category_schema::table
         .filter(release_related_category_schema::ID.eq(id))
         .first::<release_related_category>(connection)
@@ -1072,6 +1130,8 @@ pub fn create_db_release_related_category(
         ReleaseID: release_id,
         SortOrder: sort_order_number,
     };
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Creating Release Category by Release ID", color::Fg(color::Blue));
     diesel::insert_into(release_related_category_schema::table)
         .values(&data)
         .execute(conn)
@@ -1080,6 +1140,8 @@ pub fn create_db_release_related_category(
 
 pub fn delete_db_release_related_category(id: i32) {
     let conn = &mut establish_connection();
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Deleting Release Related Category by Release ID", color::Fg(color::Blue));
     diesel::delete(release_related_category_schema::table.find(id))
         .execute(conn)
         .expect("Error deleting release related category");
@@ -1087,6 +1149,8 @@ pub fn delete_db_release_related_category(id: i32) {
 
 pub fn delete_all_db_release_related_categories(release_id: i32) {
     let conn = &mut establish_connection();
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Deleting all Release Related Categories by Release ID", color::Fg(color::Blue));
     diesel::delete(
         release_related_category_schema::table
             .filter(release_related_category_schema::ReleaseID.eq(release_id)),
@@ -1108,6 +1172,8 @@ pub fn create_db_release_activity_task_attachment(
         FileName: Some(file_name),
         ContentType: Some(content_type),
     };
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Creating Release Activity Task Attachment", color::Fg(color::Blue));
     diesel::insert_into(release_activity_task_attachment_schema::table)
         .values(&new_file)
         .execute(conn)
@@ -1124,6 +1190,8 @@ fn get_db_attachment_by_id(
     release_activity_task_id: i32,
 ) -> Result<NewReleaseActivityTaskAttachment, ()> {
     let conn = &mut establish_connection();
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Getting Release Activity Task Attachment by Release Activity Task ID", color::Fg(color::Blue));
     let data = release_activity_task_attachment_schema::table
         .filter(
             release_activity_task_attachment_schema::ReleaseActivityTaskID
@@ -1137,13 +1205,18 @@ fn get_db_attachment_by_id(
         FileName: data.FileName,
         ContentType: data.ContentType,
     };
+
     Ok(db_release_activity_task_attachment)
 }
+
+
 
 pub fn download_db_file(release_activity_task_id: i32) -> io::Result<std::fs::File> {
     let file_data = get_db_attachment_by_id(release_activity_task_id).unwrap();
     let data = file_data.File;
     let file_name = file_data.FileName.unwrap();
+    println!("{}Action:", color::Fg(color::Red));
+    println!("{}Downloading Release Activity Task Attachment to users /Downloads directory by Release Activity Task Attachment ID", color::Fg(color::Blue));
     let download_dir = match dirs_2::download_dir() {
         Some(path) => path,
         None => {
@@ -1158,4 +1231,5 @@ pub fn download_db_file(release_activity_task_id: i32) -> io::Result<std::fs::Fi
     let data_ref: &[u8] = option_vec_to_slice(data);
     file.write_all(data_ref)?;
     Ok(file)
+    
 }
