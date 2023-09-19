@@ -1,4 +1,5 @@
 target/
 Cargo.lock
 moad_dev.sqlite
+moad_dev.sqlite.bak
 .env
