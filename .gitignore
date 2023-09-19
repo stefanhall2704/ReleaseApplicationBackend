@@ -1,4 +1,4 @@
-/target
-/Cargo.lock
-/moad_dev.db
+target/
+Cargo.lock
+moad_dev.sqlite
 .env
