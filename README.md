@@ -1,9 +1,3 @@
-# DREW
-
-*D*ashboard for *R*eleases, *E*xceptions, and *W*orkitems.
-
-Namesake for our late colleague, Andrew Babb.
-
 ## Installation
 
 ```bash
